@@ -8,11 +8,17 @@ const addMaterial = async (body) => {
       'Content-Type': 'application/json',
     },
   };
+  console.log({body});
   const response = await axios.post(endPoints.material.addMaterial, body, config);
   return response.data;
 };
 
 const deleteMaterial = async (id) => {
+	const response = await axios.delete(endPoints.material.deleteMaterial(id));
+	return response.data;
+}
+
+const getMaterial = async (id) => {
 	const response = await axios.delete(endPoints.material.deleteMaterial(id));
 	return response.data;
 }
