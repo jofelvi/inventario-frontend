@@ -12,9 +12,9 @@ const DashboardContent = () => {
   const auth = useAuth();
 
   const userData = {
-    name: auth?.user?.nombre,
+    name: auth?.user?.name,
     email: auth?.user?.email,
-    role: auth?.user?.rol,
+    role: auth?.user?.role,
   };
 
   const headers = ['ID', 'Name', 'Job', 'Favorite Color'];

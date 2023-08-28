@@ -83,6 +83,13 @@ const endPoints = {
         updateUsage: (id) => `${API}/consumption/${id}`,
         deleteUsage: (id) => `${API}/consumption/${id}`,
     },
+    store: {
+        getStore: (id) => `${API}/stores/${id}`,
+        getStores: `${API2}/stores`,
+        addStore: `${API2}/stores`,
+        updateStore: (id) => `${API}/stores/${id}`,
+        deleteStore: (id) => `${API}/stores/${id}`,
+    },
     
 };
 

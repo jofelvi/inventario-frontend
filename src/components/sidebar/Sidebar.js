@@ -24,7 +24,8 @@ function Sidebar() {
             }
               mode='inline'
               items={[
-                //{ label: "Dashboard", key: "/dashboard", icon: <DashboardSVG />},
+                { label: "Dashboard", key: "/dashboard", icon: <DashboardSVG />},
+                { label: "Crear Sucursal", key: "/store", icon: <DashboardSVG />},
                 { label: "Inventario",
                   key: "/inventario",
                   icon: <InventorySVG />,
@@ -47,6 +48,7 @@ function Sidebar() {
                 { label: "Entradas", key: "/entries", icon: <ShopOutlined />},
                 { label: "Logout", key: "logout", icon: <LogoutOutlined />},
               ]}
+              
               >
               </Menu>
           </SidebarContainer>
