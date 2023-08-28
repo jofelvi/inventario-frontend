@@ -24,10 +24,10 @@ export default function AddEntry({ setOpen, setAlert}) {
 
   useEffect(() => {
     async function getInventory() {
-      console.log(endPoints.mainInventory.getMainInventorys)
-      const response = await axios.get(endPoints.mainInventory.getMainInventorys);
+      //const response = await axios.get(endPoints.mainInventory.getMainInventorys);
+      const response = await axios.get(endPoints.material.getMaterials);
+      console.log(response.data)
       setMainInventory(response.data);
-      console.log({mainInventory})
     }
     try {
       getInventory();
@@ -40,27 +40,21 @@ export default function AddEntry({ setOpen, setAlert}) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
-
+    
     async function getInventoryId() {
-      const response = await axios.get(endPoints.mainInventory.getMainInventory(formData.get('materialId')));
-      console.log({response})
-      const inventory = response.data;
-      const materialID = inventory.material.id;
-
-      const totalQuantity = inventory.quantity - parseFloat(formData.get('quantity'));
-      const body = {
-        quantity: totalQuantity
-      }
-      updateMainInventory(inventory.id, body);
+      //const response = await axios.get(endPoints.mainInventory.getMainInventory(formData.get('materialId')));
+      //updateMainInventory(inventory.id, body);
 
       const data = {
-        branch: formData.get('branch'),
+        storeId: formData.get('branch'),
+        storeName: formData.get('branch'),
         userId: user.id,
         quantity: parseFloat(formData.get('quantity')),
         materialId: materialID,
-      };
+        materialName: materialName
+      }; 
 
-        addEntry(data)
+         addEntry(data)
           .then(() => {
             setAlert({
               active: true,
@@ -126,12 +120,9 @@ export default function AddEntry({ setOpen, setAlert}) {
           addJuncalInventory(body);
         }
       }
-    }
-    getInventoryId();
-    formRef.current.reset();
-
-
-    
+    } 
+   //getInventoryId();
+    formRef.current.reset()    
   };
 
   return (
@@ -150,12 +141,12 @@ export default function AddEntry({ setOpen, setAlert}) {
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 {
-                  mainInventory?.map((inventory) => (
+                 mainInventory?.map((inventory) => (
                     <option
-                    key= {inventory.id}
-                    value={inventory.id}
+                      key= {inventory._id}
+                      value={inventory._id}
                     >
-                      {inventory.material.name}
+                      {inventory.name}
                     </option>
                     
                   ))

@@ -25,8 +25,8 @@ const EntryContent = () => {
 
   useEffect(() => {
     async function getEntries() {
-      const response = await axios.get(endPoints.entries.getEntries);
-      setEntries(response.data);
+      //const response = await axios.get(endPoints.entries.getEntries);
+      //setEntries(response.data);
     }
     try {
       getEntries();
@@ -76,7 +76,7 @@ const EntryContent = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {entries?.map((entry) => (
+                  {entries.length >0 && entries?.map((entry) => (
                     <tr key={`Entry-item-${entry.id}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{entry.createAt.substring(0, 10)}</div>

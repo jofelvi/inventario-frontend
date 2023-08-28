@@ -26,15 +26,15 @@ const OrdersContent = () => {
       dataIndex: 'bill',
       key: 'bill',
       render: (text, record) => (
-        <Link href={`/orders/order/${record.id}`}>
+        <Link href={`/orders/order/${record._id}`}>
           {text}
         </Link>
       ),
     },
     {
       title: 'Proveedor',
-      dataIndex: 'provider',
-      key: 'provider',
+      dataIndex: 'providerName',
+      key: 'providerName',
     },
     {
       title: 'Precio Total',
@@ -46,7 +46,7 @@ const OrdersContent = () => {
       key: 'action',
       render: (record) => (
         <Space size="middle">
-          <Link href={`/orders/order/edit/${record.id}`}>
+          <Link href={`/orders/order/edit/${record._id}`}>
             Añadir items
           </Link>
         </Space>
@@ -58,7 +58,6 @@ const OrdersContent = () => {
       const response = await axios.get(endPoints.orders.getOrders);
       setOrders(response.data);
       setTotalItems(response.data.length);
-      
     }
     try {
       getProducts();
@@ -82,9 +81,9 @@ const OrdersContent = () => {
             {open ? <AddOrder setOpen={setOpen} setAlert={setAlert} /> 
             :
             <Table
-            columns={columns}
-            dataSource={orders}
-            pagination={{
+              columns={columns}
+              dataSource={orders}
+              pagination={{
               pageSize: 6,
               total: totalItems,
             }}

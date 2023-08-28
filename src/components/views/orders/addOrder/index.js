@@ -11,18 +11,18 @@ export default function AddOrder({ setOpen, setAlert}) {
   const router = useRouter();
   
   const user = {
-    id: auth?.user?.id,
+    id: auth?.user?._id,
+    email: auth?.user?.email,
   };
-
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
 
       const data = {
-        userId: user.id,
+        userId: user.email,
         bill: formData.get('bill'),
-        provider: formData.get('provider'),
+        providerName: formData.get('provider'),
         total_price: parseFloat(formData.get('total_price')),
       };
 
@@ -48,9 +48,7 @@ export default function AddOrder({ setOpen, setAlert}) {
               autoClose: true,
             });
           }); 
-
     formRef.current.reset();
-
   };
 
   return (
@@ -68,7 +66,6 @@ export default function AddOrder({ setOpen, setAlert}) {
                 id="bill"
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               />
-              
             </div>
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="provider" className="block text-sm font-medium text-gray-700">

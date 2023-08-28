@@ -64,11 +64,10 @@ const MaterialsContent = () => {
       key: 'action',
       render: (record) => (
         <Space size="middle">
-          <DeleteOutlined onClick={() => handleDelete(record.id)} /> 
-          <Link href={`/products/materials/edit/${record.id}`}>
+          <DeleteOutlined onClick={() => handleDelete(record._id)} /> 
+          <Link href={`/products/materials/edit/${record._id}`}>
             <EditOutlined />
           </Link>
-          
         </Space>
       ),
     },
@@ -78,7 +77,7 @@ const MaterialsContent = () => {
       const response = await axios.get(endPoints.material.getMaterials);
       setMaterials(response.data);
       setTotalItems(response.data.length);
-      
+      console.log(response.data);
     }
     try {
       getMaterials();
@@ -125,12 +124,12 @@ const MaterialsContent = () => {
           </FlexC>
           <Content>
             <Alert alert={alert} handleClose={toggleAlert} />
-            {open ? <AddMaterial setOpen={setOpen} setAlert={setAlert} /> 
+            {open ? <AddMaterial setOpen={setOpen} setAlertProps={setAlert} /> 
             :
             <Table
-            columns={columns}
-            dataSource={materials}
-            pagination={{
+              columns={columns}
+              dataSource={materials}
+              pagination={{
               pageSize: 6,
               total: totalItems,
             }}

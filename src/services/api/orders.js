@@ -8,6 +8,7 @@ const addOrder = async (body) => {
         'Content-Type': 'application/json',
       },
     };
+    console.log({body});
     const response = await axios.post(endPoints.orders.addOrders, body, config);
     return response.data;
   };

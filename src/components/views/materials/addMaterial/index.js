@@ -1,10 +1,14 @@
 import { useRef } from 'react';
 import { addMaterial, updateMaterial } from '@services/api/materials';
 import { useRouter } from 'next/router';
+import useAlert from '@hooks/useAlert';
+import Alert from '@common/Alert';
 
-export default function AddMaterial({ setOpen, setAlert, material }) {
+export default function AddMaterial({ setOpen, setAlertProps, material }) {
   const formRef = useRef(null);
   const router = useRouter();
+  const { alert, setAlert, toggleAlert } = useAlert();
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -16,8 +20,19 @@ export default function AddMaterial({ setOpen, setAlert, material }) {
     };
 
     if (material) {
-      updateMaterial(material.id, data).then((response) => {
-        router.push('/products/materials/');
+      console.log({material})
+      updateMaterial(material._id, data).then((response) => {
+        //router.push('/products/materials/');
+        setAlert({
+          active: true,
+          message: 'Material Editado exitosamente',
+          type: 'success',
+          autoClose: false,
+        });
+        toggleAlert(true)
+        setTimeout(() => {
+          router.push('/products/materials/');
+        }, 2000);
       });
     } else {
       addMaterial(data)
@@ -45,6 +60,7 @@ export default function AddMaterial({ setOpen, setAlert, material }) {
   return (
     <form ref={formRef} onSubmit={handleSubmit}>
       <div className="overflow-hidden">
+      <Alert alert={alert} handleClose={toggleAlert} />
         <div className="px-4 py-5 bg-white sm:p-6">
           <div className="grid grid-cols-6 gap-6">
             <div className="col-span-6 sm:col-span-3">
