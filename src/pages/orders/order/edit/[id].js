@@ -14,21 +14,22 @@ import {
   FlexC,
   Aling
  } from './styles';
+import useAlert from "@hooks/useAlert";
 
 const Edit = () => {
-
   const router = useRouter();
   const [order, setOrder] = useState({});
+  const { id } = router.query;
 
   useEffect(() => {
-    const { id } = router.query;
+
     if (!router.isReady) return;
     async function getOrder() {
       const response = await axios.get(endPoints.orders.getOrder(id));
       setOrder(response.data);
     }
     getOrder();
-  }, [router?.isReady]);
+  }, [id]);
 
   return (
     <Main>
@@ -43,7 +44,7 @@ const Edit = () => {
     <Aling>
       <Content>
         <span>Factura <b>{order.bill}</b></span>
-        <AddOrderItem order={order}/>
+        <AddOrderItem order={order} id={id}/>
       </Content>
     </Aling>
     </BackgroundContainer>

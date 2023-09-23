@@ -18,12 +18,12 @@ export default function AddOrder({ setOpen, setAlert}) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
-
+    console.log("user.id", user.id)
       const data = {
-        userId: user.email,
+        userId: user.id,
         bill: formData.get('bill'),
         providerName: formData.get('provider'),
-        total_price: parseFloat(formData.get('total_price')),
+        total_price: parseFloat(formData.get('total_price').toString()),
       };
 
       console.log(data);

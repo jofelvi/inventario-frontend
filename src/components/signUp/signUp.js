@@ -43,8 +43,6 @@ const CreateUserForm = () => {
 
         try {
             let signUpResp = await auth.createUser(newUser);
-/*             const {data} = signUpResp
-            console.log({data}); */
             console.log("------------------");
             console.log(signUpResp);
             setSuccessSmg(signUpResp.message)
@@ -102,12 +100,12 @@ const CreateUserForm = () => {
                                 />
                             </div>
                             <div>
-                                <label for="email-address" className="sr-only">Email</label>
+                                <label htmlFor="email-address" className="sr-only">Email</label>
                                 <input
                                     id="email-address"
                                     name="email"
                                     type="email"
-                                    autocomplete="email"
+                                    autoComplete="email"
                                     required
                                     className="relative block w-full appearance-none rounded-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm"
                                     placeholder="Email address"
@@ -115,19 +113,19 @@ const CreateUserForm = () => {
                                 />
                             </div>
                             <div>
-                                <label for="password" className="sr-only">Contraseña</label>
+                                <label htmlFor="password" className="sr-only">Contraseña</label>
                                 <input
                                     id="password"
                                     name="password"
                                     type="password"
-                                    autocomplete="current-password"
+                                    autoComplete="current-password"
                                     required className="relative block w-full appearance-none rounded-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm"
                                     placeholder="Contraseña"
                                     ref={passwordRef}
                                 />
                             </div>
                             <div>
-                                <label for="password" className="sr-only">Repetir Contraseña</label>
+                                <label htmlFor="password" className="sr-only">Repetir Contraseña</label>
                                 <input
                                     id="passwordReply"
                                     name="passwordReply"
@@ -139,7 +137,7 @@ const CreateUserForm = () => {
                                 />
                             </div>
                             <div>
-                                <label for="role" className="sr-only">Role:</label>
+                                <label htmlFor="role" className="sr-only">Role:</label>
                                 <select
                                     id="role"
                                     name="role"

@@ -58,6 +58,7 @@ const MaterialsContent = () => {
     },
   ];
   useEffect(() => {
+    console.log("entro a materiales")
     async function getMaterials() {
       const response = await axios.get(endPoints.material.getMaterials);
       setMaterials(response.data);
@@ -69,7 +70,7 @@ const MaterialsContent = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [alert]);
+  }, [open, alert]);
 
   const handleDelete = (id) => {
     console.log(id);
@@ -109,7 +110,7 @@ const MaterialsContent = () => {
           </FlexC>
           <Content>
             <Alert alert={alert} handleClose={toggleAlert} />
-          {/*   {open ? (
+             {open ? (
               <AddMaterial setOpen={setOpen} setAlertProps={setAlert} />
             ) : (
               <Table
@@ -120,7 +121,7 @@ const MaterialsContent = () => {
                   total: totalItems,
                 }}
               />
-            )} */}
+            )}
           </Content>
         </BackgroundContainer>
       </Main>

@@ -23,7 +23,7 @@ function useProvideAuth() {
       Auth: API_KEY
     },
   };
-  const fetchUser = useCallback(async () => {
+/*  const fetchUser = useCallback(async () => {
     try {
       const token = Cookie.get('token');
 
@@ -36,7 +36,7 @@ function useProvideAuth() {
     } catch (error) {
       setUser(null);
     }
-  }, []);
+  }, []);*/
 
   const singIn = async (email, password) => {
 
@@ -77,9 +77,9 @@ function useProvideAuth() {
   };
 
   useEffect(() => {
-    fetchUser();
-    console.log({user})
-  }, [fetchUser]);
+
+
+  }, []);
 
   const logout = () => {
     Cookie.remove('token');

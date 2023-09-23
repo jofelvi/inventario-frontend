@@ -29,7 +29,7 @@ const MainInventoryContent = () => {
       
     }
     try {
-      getInventory();
+      //getInventory();
     } catch (error) {
       console.log(error);
     }

@@ -14,14 +14,18 @@ const addOrder = async (body) => {
   };
 
   const addOrderItem = async (body) => {
-    const config = {
-      headers: {
-        accept: '*/*',
-        'Content-Type': 'application/json',
-      },
-    };
-    const response = await axios.post(endPoints.orderItems.addOrderItems, body, config);
-    return response.data;
+    try {
+      const config = {
+        headers: {
+          accept: '*/*',
+          'Content-Type': 'application/json',
+        },
+      };
+      const response = await axios.patch(endPoints.orderItems.addOrUpdateOrderItems+ body.orderId, body, config);
+      return response.data;
+    }catch (e) {
+      console.log(e.message)
+    }
   };
   
   const deleteOrder = async (id, body) => {

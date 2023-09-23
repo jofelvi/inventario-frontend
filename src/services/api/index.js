@@ -38,7 +38,7 @@ const endPoints = {
     orderItems: {
         getOrderItems: (id) => `${API}/order-item/${id}`,
         getOrdersItems: `${API}/order-item`,
-        addOrderItems: `${API}/order-item`,
+        addOrUpdateOrderItems: `${API2}/orders/`,
         deleteOrderItems: (id) => `${API}/order-item/${id}`,
     },
     entries: {
