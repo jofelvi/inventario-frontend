@@ -23,29 +23,14 @@ function useProvideAuth() {
       Auth: API_KEY
     },
   };
-/*  const fetchUser = useCallback(async () => {
-    try {
-      const token = Cookie.get('token');
-
-      if (token) {
-        axios.defaults.headers.Authorization = `Bearer ${token}`;
-        console.log("llamado api me")
-        const { data: user } = await axios.get(endPoints.auth.me) ;
-        setUser(user);
-      }
-    } catch (error) {
-      setUser(null);
-    }
-  }, []);*/
 
   const singIn = async (email, password) => {
-
     const res = await axios.post(endPoints.auth.login, { email, password }, options);
     console.log({res})
     if (res) {
       const token = res.data.token;
       try {
-        Cookie.set('token', token, { expires: 5 });
+        localStorage.setItem('token', token);
         setUser(res.data.usuario);
       } catch (error) {
         setUser(null);
@@ -55,19 +40,12 @@ function useProvideAuth() {
 
   const createUser = async (newUser) => {
     try {
-      
       const response = await axios.post(endPoints.auth.signUp2, newUser, options);
-      console.log("antes de entrar");
       if (response.status === 201) {
-        console.log("entro");
-        console.log("---------------------")
         const {message, token, usuario} = response.data
-        console.log("---------------------", usuario)
-        console.log("---------------------")
-        Cookie.set('token', token, { expires: 5 });
+        localStorage.setItem('token', token);
         setUser(usuario);
-        //await fetchUser();
-        return response.data; 
+        return response.data;
       }
       console.log("no entro");
       
@@ -76,10 +54,7 @@ function useProvideAuth() {
     }
   };
 
-  useEffect(() => {
-
-
-  }, []);
+  useEffect(() => {  }, []);
 
   const logout = () => {
     Cookie.remove('token');

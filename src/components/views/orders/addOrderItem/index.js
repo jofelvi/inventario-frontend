@@ -26,7 +26,6 @@ export default function AddOrderItem({  order, id}) {
     async function getMaterial() {
       const responseMaterials = await axios.get(endPoints.material.getMaterials);
       setMaterials(responseMaterials.data);
-      console.log("responseMaterials", responseMaterials.data)
     }
     try {
       getMaterial();

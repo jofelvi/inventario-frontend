@@ -53,6 +53,7 @@ const OrdersContent = () => {
       ),
     },
   ];
+
   useEffect(() => {
     async function getProducts() {
       const response = await axios.get(endPoints.orders.getOrders);

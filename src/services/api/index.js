@@ -1,5 +1,6 @@
 const API = process.env.NEXT_PUBLIC_API_URL;
 const API2 =  "http://localhost:5000/api"
+
 const endPoints = {
     auth: {
         login: `${API2}/auth/login`,
@@ -13,6 +14,7 @@ const endPoints = {
         getProducts: `${API2}/products`,
         addProducts: `${API2}/products`,
         updateProduct: (id) => `${API2}/products/${id}`,
+        updateProductForInventary: (id) => `${API2}/products/consumption/${id}`,
         deleteProduct: (id) => `${API2}/products/${id}`,
     },
     productsMaterials: {
@@ -55,9 +57,9 @@ const endPoints = {
         updateMaterial: (id) => `${API2}/materials/${id}`,
         deleteMaterial: (id) => `${API2}/materials/${id}`,
     },
-    mainInventory: {
-        getMainInventory: (id) => `${API}/mainInventory/${id}`,
-        getMainInventorys: `${API}/mainInventory`,
+    inventory: {
+        getProductsByStore: (id) => `${API2}/inventory/finbyStore/${id}`,
+        getALlInventories: (id) => `${API2}/inventory`,
         addMainInventory: `${API}/mainInventory`,
         updateMainInventory: (id) => `${API}/mainInventory/${id}`,
         deleteMainInventory: (id) => `${API}/mainInventory/${id}`,
@@ -84,11 +86,11 @@ const endPoints = {
         deleteUsage: (id) => `${API}/consumption/${id}`,
     },
     store: {
-        getStore: (id) => `${API}/stores/${id}`,
+        getStore: (id) => `${API2}/stores/${id}`,
         getStores: `${API2}/stores`,
         addStore: `${API2}/stores`,
-        updateStore: (id) => `${API}/stores/${id}`,
-        deleteStore: (id) => `${API}/stores/${id}`,
+        updateStore: (id) => `${API2}/stores/${id}`,
+        deleteStore: (id) => `${API2}/stores/${id}`,
     },
     
 };

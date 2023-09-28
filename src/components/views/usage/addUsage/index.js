@@ -4,17 +4,20 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import endPoints from '@services/api';
 import { useAuth } from '@hooks/useAuth';
-const branches = [
-  { _id: '1', name: 'Miranda' },
-  { _id: '2', name: 'Juncal' },
-];
+import {updateInventoryByProductId, updateProduct} from "@services/api/products";
 export default function AddUsage({ setOpen, setAlert}) {
   const formRef = useRef(null);
   const [products, setProducts] = useState([]);
-  const [sucursales, setSucursales] = useState(branches);
-  
+  const [stores, setStores] = useState()
   const auth = useAuth();
   const router = useRouter();
+  const [selectStore, setSelectStore] = useState()
+  const [productsByStorage, setProductsByStorage] = useState()
+  const [productDisabled, setProductDisabled] = useState(true)
+  const [selectPoductId, setSelectPoductId] = useState()
+  const [quantityAvalible, setQuantityAvalible] = useState()
+  const [isOnlyProduct, setIsOnlyProduct] = useState(false)
+
   const user = {
     id: auth?.user?._id,
     email: auth?.user?.email,
@@ -23,23 +26,34 @@ export default function AddUsage({ setOpen, setAlert}) {
   useEffect(() => {
     async function getProducts() {
       try {
-        const response = await axios.get(endPoints.products.getProducts);
-        setProducts(response.data);
+        await getStores()
       } catch (error) {
         console.log(error);
       }
     }
-
     getProducts();
   }, []);
 
+  useEffect(() => {
+    getProductsByStores()
+  }, [selectStore]);
+
+  const  getStores = async ()=> {
+    try {
+      const response = await axios.get(endPoints.store.getStores);
+      const storesActives = response.data.filter((item)=> item.status === "active")
+      setStores(storesActives);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
     const selectedProductId = formData.get('productId');
     const selectedProduct = products.find((product) => product._id === selectedProductId);
     const selectedBranchId = formData.get('branch');
-    const selectedBranch = sucursales.find((branch) => branch._id === selectedBranchId);
+    const selectedBranch = stores.find((branch) => branch._id === selectedProduct);
     const quantity = parseFloat(formData.get('quantity'));
 
     const data = {
@@ -52,15 +66,16 @@ export default function AddUsage({ setOpen, setAlert}) {
     };
 
     try {
-      await addUsage(data);
-      setAlert({
-        active: true,
-        message: 'Consumo añadido exitosamente',
-        type: 'success',
-        autoClose: true,
+      await updateInventoryByProductId(selectedProductId, data).then(() => {
+        setAlert({
+          active: true,
+          message: 'Consumo añadido exitosamente',
+          type: 'success',
+          autoClose: true,
+        });
+        setOpen(true);
+        router.push('/products/usage');
       });
-      setOpen(true);
-      router.push('/products/usage');
     } catch (error) {
       setAlert({
         active: true,
@@ -69,31 +84,87 @@ export default function AddUsage({ setOpen, setAlert}) {
         autoClose: true,
       });
     }
-
     formRef.current.reset();
   };
+
+  const  getProductsByStores = async ()=> {
+    try {
+      const response = await axios.get(endPoints.inventory.getALlInventories());
+      const inventoryByStore= response.data.filter((item)=> item.storeId === selectStore)
+      const isNotEmptyInventoryByStore =  inventoryByStore.length > 0 ? setProductDisabled(false) :  setProductDisabled(true)
+      console.log({inventoryByStore})
+      inventoryByStore.length === 1 && setQuantityAvalible(inventoryByStore[0].quantityTotal)
+      console.log({inventoryByStore})
+      setProductsByStorage(inventoryByStore);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const updateQuantity = (selectedProdId, inventoryUpdate) => {
+    if(selectedProdId){
+      let amount = productsByStorage.filter((item)=> item.productId === selectedProdId )
+      setQuantityAvalible(amount ? amount[0].quantityTotal : null)
+    }else{
+      console.log({inventoryUpdate})
+      setQuantityAvalible(inventoryUpdate ? inventoryUpdate[0].quantityTotal : null)
+    }
+  }
   return (
     <form ref={formRef} onSubmit={handleSubmit}>
       <div className="overflow-hidden">
         <div className="px-4 py-5 bg-white sm:p-6">
           <div className="grid grid-cols-6 gap-6">
             <div className="col-span-6 sm:col-span-3">
-            <label htmlFor="productId" className="block text-sm font-medium text-gray-700">
-                Producto 
+              <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
+                Sucursal
+              </label>
+              <select
+                id="branch"
+                name="branch"
+                autoComplete="branch-name"
+                onChange={(event) => {
+                  const selectedStoreId = event.target.value;
+                  console.log(event.target.name)
+                  setSelectStore(selectedStoreId);
+                }}
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                {
+                  stores?.map((store) => (
+                    <option
+                      key= {store._id}
+                      value={store._id}
+                    >
+                      {store.storeName}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="productId" className="block text-sm font-medium text-gray-700">
+                Producto
               </label>
               <select
                 id="productId"
                 name="productId"
                 autoComplete="productId-name"
+                disabled={productDisabled}
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                onChange={(event) => {
+                  const selectedProdId = event.target.value;
+                  setSelectPoductId(selectedProdId);
+                  updateQuantity(selectedProdId)
+                }}
               >
                 {
-                  products?.map((product) => (
+                  productsByStorage?.map((product) => (
                     <option
-                    key= {product._id}
-                    value={product._id}
+                      key= {product.productId}
+                      value={product.productId}
                     >
-                      {product.name}
+                      {product.productName}
                     </option>
                   ))
                 }
@@ -112,19 +183,22 @@ export default function AddUsage({ setOpen, setAlert}) {
               />
             </div>
             <div className="col-span-6 sm:col-span-3">
-            <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-                Sucursal
+              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+                Cantidad Disponible
               </label>
-            <select
-                id="branch"
-                name="branch"
-                autoComplete="branch-name"
-                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
-                <option value="1" data-branch="Miranda">Miranda</option>
-                <option value="2" data-branch="Juncal">Juncal</option>
-              </select>
+            <div>
+              <input
+                step="any"
+                type="number"
+                name="quantity"
+                id="quantity"
+                value={quantityAvalible}
+                disabled={true}
+                className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              />
             </div>
+            </div>
+
           </div>
         </div>
         <div className="px-4 py-3 text-right sm:px-6">
@@ -183,4 +257,4 @@ export default function AddUsage({ setOpen, setAlert}) {
         })
       }
     } */
-    //updateInventorysId();
+//updateInventorysId();

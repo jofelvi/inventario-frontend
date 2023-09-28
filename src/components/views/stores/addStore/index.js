@@ -1,38 +1,42 @@
-import { useRef } from 'react';
+import {useEffect, useRef} from 'react';
 import { addMaterial, updateMaterial } from '@services/api/materials';
 import { useRouter } from 'next/router';
 import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
+import axios from "axios";
+import endPoints from "@services/api";
 
-const AddStore = ({ setOpen, setAlertProps }) => {
+const AddStore = ({ setOpen, setAlert }) => {
     const formRef = useRef(null);
     const router = useRouter();
-    const { alert, setAlert, toggleAlert } = useAlert();
 
     const handleSubmit = async (event) => {
       event.preventDefault();
+      console.log("handleSubmit")
       const formData = new FormData(formRef.current);
       const data = {
         storeName: formData.get('storeName'),
       };
   
       try {
-        const response = await axios.post(endPoints.store.addStore, data);
+        const response = await axios.post(endPoints.store.addStore, data).then(()=> console.log("response after api call"))
+        console.log("response then")
         setAlert({
           active: true,
           message: 'Tienda añadida exitosamente',
           type: 'success',
           autoClose: false,
         });
-        toggleAlert(true);
+        console.log("ALert then")
         setOpen(false);
-        // Puedes redirigir aquí o realizar otras acciones necesarias
+        await router.push("/stores")
       } catch (error) {
+        console.log(error)
         setAlert({
           active: true,
           message: error.message,
           type: 'error',
-          autoClose: false,
+          autoClose: true,
         });
       }
     };
@@ -40,7 +44,6 @@ const AddStore = ({ setOpen, setAlertProps }) => {
     return (
       <form ref={formRef} onSubmit={handleSubmit}>
         <div className="overflow-hidden">
-          <Alert alert={alert} handleClose={toggleAlert} />
           <div className="px-4 py-5 bg-white sm:p-6">
             <div className="grid grid-cols-6 gap-6">
               <div className="col-span-6 sm:col-span-3">
@@ -54,7 +57,6 @@ const AddStore = ({ setOpen, setAlertProps }) => {
                   className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                 />
               </div>
-            
             </div>
           </div>
           <div className="px-4 py-3 text-right sm:px-6">

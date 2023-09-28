@@ -2,18 +2,25 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import endPoints from '@services/api';
 import Sidebar from '@components/sidebar/Sidebar';
-import { Main, Content, BackgroundContainer,  FlexR,UserContainer,Table, Title, Subtitle, FlexC, Space } from '@components/views/entries/styles';
+import {  FlexR } from '@components/views/entries/styles';
+import { Main, Content, BackgroundContainer, Table, Title, Subtitle, FlexC, Space } from '@components/views/products/styles';
+
 import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
 import Link from 'next/link';
 import AddStore from './addStore';
+import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 
 const StoreContent = () => {
     const [open, setOpen] = useState(false);
     const [stores, setStores] = useState([]);
     const { alert, setAlert, toggleAlert } = useAlert();
     const [totalItems, setTotalItems] = useState(0);
-  
+
+    useEffect(() => {
+      getStores();
+    }, [alert, setAlert]);
+
     const columns = [
       {
         title: 'Nombre de la Tienda',
@@ -30,37 +37,50 @@ const StoreContent = () => {
         title: 'Estado',
         dataIndex: 'status',
         key: 'status',
+        render: (record) => (
+           <div>
+             {record === "active" ? "Activa" : "Eliminada"}
+           </div>
+        ),
       },
       {
         key: 'action',
         render: (record) => (
           <Space size="middle">
-            <Link href={`/stores/edit/${record._id}`}>Editar</Link>
-            <a onClick={() => handleDelete(record._id)}>Eliminar</a>
+            <DeleteOutlined onClick={() => handleDelete(record._id)} />
+            <Link href={`/stores/store/edit/${record._id}`}>
+              <EditOutlined />
+            </Link>
           </Space>
         ),
       },
     ];
-  
-    useEffect(() => {
-      async function getStores() {
-        try {
-          const response = await axios.get(endPoints.store.getStores);
-          setStores(response.data);
-          setTotalItems(response.data.length);
-          console.log(response.data);
-        } catch (error) {
-          console.log(error);
-        }
+
+
+  const  getStores = async ()=> {
+    try {
+      const response = await axios.get(endPoints.store.getStores);
+      const storesActives = response.data.filter((item)=> item.status === "active")
+      setStores(storesActives);
+      setTotalItems(storesActives.length);
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+    const handleDelete =async (id) => {
+      try {
+        const response = await axios.patch(endPoints.store.deleteStore(id));
+        setAlert({
+          active: true,
+          message: 'Sucursal borrada exitosamente',
+          type: 'success',
+          autoClose: true,
+        });
+      } catch (error) {
+        console.log(error);
       }
-      getStores();
-    }, [alert]);
-  
-    const handleDelete = (id) => {
-      console.log(id);
-      
     };
-  
     return (
       <>
         <Main>
@@ -79,7 +99,7 @@ const StoreContent = () => {
             <Content>
               <Alert alert={alert} handleClose={toggleAlert} />
               {open ? (
-                <AddStore setOpen={setOpen} setAlertProps={setAlert} />
+                <AddStore setOpen={setOpen} setAlert={setAlert} />
               ) : (
                 <Table
                   columns={columns}

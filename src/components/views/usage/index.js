@@ -6,17 +6,25 @@ import { Main, Content, BackgroundContainer, Title, Subtitle, FlexC } from '@com
 import AddUsage from '@components/views/usage/addUsage/index';
 import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
-
+import {Collapse, Table} from "antd";
+const { Panel } = Collapse;
 const UsageContent = () => {
   const [open, setOpen] = useState(false);
-  const [usage, setUsage] = useState([]);
   const { alert, setAlert, toggleAlert } = useAlert();
+  const [inventaryArray, setInventaryArray] = useState()
+  const [totalItems, setTotalItems] = useState()
 
   useEffect(() => {
     async function getUsage() {
-      const response = await axios.get(endPoints.usage.getUsages);
-      setUsage(response.data);
-      console.log(response.data);
+      const response = await axios.get(endPoints.inventory.getALlInventories());
+      setTotalItems(response.data.length)
+      const inventoryByStore= response.data.filter((item)=> {
+        if ( item.transactionProducts.length > 0 ) {
+         return  item.transactionProducts[0].typeTransaction === 'out'
+        }
+      })
+      console.log(JSON.stringify(inventoryByStore))
+      setInventaryArray(inventoryByStore)
     }
     try {
       getUsage();
@@ -24,6 +32,49 @@ const UsageContent = () => {
       console.log(error);
     }
   }, [alert]);
+
+  const columns = [
+    {
+      title: 'Fecha',
+      dataIndex: 'updateAt',
+      key: 'updateAt',
+      render: (updateAt) => <span>{new Date(updateAt).toLocaleDateString()}</span>,
+    },
+    {
+      title: 'Usuario',
+      dataIndex: 'userId',
+      key: 'userId'
+    },
+    {
+      title: 'Producto',
+      dataIndex: 'productName',
+      key: 'productName',
+    },
+    {
+      title: 'Cantidad',
+      dataIndex: 'quantityTotal',
+      key: 'quantityTotal',
+    },
+    {
+      title: 'Sucursal',
+      dataIndex: 'storeName',
+      key: 'storeName',
+    },
+    {
+      title: 'Transacciones',
+      key: 'transactionProducts',
+      render: (record) => (
+        <Collapse>
+          {record.transactionProducts.map((transaction, index) => (
+            <Panel header={`Transacción ${index + 1}`} key={`transaction-${index}`}>
+              <p>Tipo de Transacción: {transaction.typeTransaction}</p>
+              <p>Cantidad de Transacción: {transaction.quantityTransaction}</p>
+            </Panel>
+          ))}
+        </Collapse>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -39,50 +90,17 @@ const UsageContent = () => {
             {open ? (
               <AddUsage setOpen={setOpen} setAlert={setAlert} />
             ) : (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fecha
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Usuario
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Producto
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Cantidad
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sucursal
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {usage.map((item) => (
-                    <tr key={`Usage-item-${item._id}`}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{new Date(item.date).toLocaleDateString()}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{item.userId}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{item.productName}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {item.quantity} {item.unit}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">{item.storeName}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Table
+                columns={columns}
+                dataSource={inventaryArray}
+              /*  expandable={{
+                  expandedRowRender: (record) => record.transactionProducts.length > 0,
+                  rowExpandable: (record) => record.transactionProducts.length > 0,
+                }}*/
+                pagination={{
+                  pageSize: 6,
+                  total: totalItems,
+                }}/>
             )}
           </Content>
         </BackgroundContainer>

@@ -1,7 +1,7 @@
 import React from 'react';
 import StoreContent from '@components/views/stores/StoreContent';
 
-const Store = () => {
+const Index = () => {
 
     return (
         <>
@@ -9,4 +9,4 @@ const Store = () => {
         </>
     )
 }
-export default Store;
+export default Index;
