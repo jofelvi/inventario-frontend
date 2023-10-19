@@ -2,20 +2,67 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '@components/sidebar/Sidebar';
 import { Main, Content, BackgroundContainer, WelcomeTitle, FlexC, Title, CardsContainer, SmallCard, ListContainer, List, ActivityContainer } from '@components/views/dashboard/styles';
 import { useAuth } from '@hooks/useAuth';
-import { useRouter } from 'next/router';
-import useFetch from '@hooks/useFetch';
-import endPoints from '@services/api';
 import DynamicTable from '../../../components/ListDashboard/DynamicTable'
 import DynamicTableXl from '@components/ListDashboard/DynamicTableXl';
+import axios from "axios";
+import endPoints from "@services/api";
+import useAlert from "@hooks/useAlert";
+import {ChartVerticalUsers} from "@components/chartVerticalUsers";
 
 const DashboardContent = () => {
   const auth = useAuth();
+  const { alert, setAlert, toggleAlert } = useAlert();
+  const [inventaryArray, setInventaryArray] = useState([])
+  const [totalItems, setTotalItems] = useState()
+  const [totalOutInventory, setTotalOutInventory] = useState()
+  const [totalInInventory, setTotalInInventory] = useState()
+  const [usersCount, setUsersCount] = useState()
+  const [orderCount, setOrderCount] = useState()
 
   const userData = {
     name: auth?.user?.name,
     email: auth?.user?.email,
     role: auth?.user?.role,
   };
+
+  useEffect(() => {
+      getUsage();
+      getUsersCount()
+      getOrdersCount()
+  }, [alert]);
+
+  const getUsage = async () => {
+    const response = await axios.get(endPoints.inventory.getALlInventories());
+    const inventories = response.data;
+
+    const { in: inCount, out: outCount } = inventories.reduce(
+      (counts, item) => {
+        if (item.transactionProducts.length > 0) {
+          if (item.transactionProducts[0].typeTransaction === 'out') {
+            counts.out++;
+          } else if (item.transactionProducts[0].typeTransaction === 'in') {
+            counts.in++;
+          }
+        }
+        return counts;
+      },
+      { in: 0, out: 0 }
+    );
+    setTotalItems(inventories.length);
+    setTotalOutInventory(outCount);
+    setTotalInInventory(inCount);
+    setInventaryArray(inventories.filter((item) => item.transactionProducts.length > 0));
+  }
+
+  const getUsersCount = async () => {
+    const response = await axios.get(endPoints.users.getUsers);
+    setUsersCount(response?.data?.total || 0)
+  }
+
+  const getOrdersCount = async () => {
+    const response = await axios.get(endPoints.orders.getOrders);
+    setOrderCount(response?.data?.length || 0)
+  }
 
   const headers = ['ID', 'Name', 'Job', 'Favorite Color'];
 
@@ -34,6 +81,28 @@ const DashboardContent = () => {
     { id: '5', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
   ];
 
+  const labels = ['Octubre', 'Noviembre', 'Diciembre'];
+
+  const dataChartBar = {
+    labels,
+    datasets: [
+      {
+        label: 'Usuarios activos',
+        data: [usersCount]
+      },
+    ],
+  };
+  const dataChartBarOrder = {
+    labels,
+    datasets: [
+      {
+        label: 'Ordenes Procesadas',
+        data: [orderCount]
+      },
+    ],
+  };
+
+
   return (
     <Main>
       <Sidebar />
@@ -41,54 +110,44 @@ const DashboardContent = () => {
         <Content>
           <h2>Bienvenido, {userData.name}!</h2>
           <CardsContainer>
-            
-            <SmallCard>
-              <label>Capacidad de Produccion</label>
-              <div className="stats shadow">
-                <div className="stat">
-                  <div className="stat-title">Total Page Views</div>
-                  <div className="stat-value">89,400</div>
-                  <div className="stat-desc">21% more than last month</div>
-                </div>
-              </div>
-            </SmallCard>
             <SmallCard>
             <label>Cantidad en stock</label>
-              <div className="stats shadow">
+              <div className="stats">
                 <div className="stat">
-                  <div className="stat-title">Total Page Views</div>
-                  <div className="stat-value">89,400</div>
-                  <div className="stat-desc">21% more than last month</div>
+                  <div className="stat-title">Total General </div>
+                  <div className="stat-value">{totalItems || 0}</div>
+                  <div className="stat-desc">100% del ultimo mes</div>
                 </div>
               </div>
             </SmallCard>
             <SmallCard>
-            <label>Inversion Actual</label>
-              <div className="stats shadow">
+              <label>Cantidad Salidas</label>
+              <div className="stats">
                 <div className="stat">
-                  <div className="stat-title">Total Page Views</div>
-                  <div className="stat-value">89,400</div>
-                  <div className="stat-desc">21% more than last month</div>
+                  <div className="stat-title">Total </div>
+                  <div className="stat-value">{totalOutInventory|| 0}</div>
+                  <div className="stat-desc">100% del ultimo mes</div>
                 </div>
               </div>
             </SmallCard>
             <SmallCard>
-            <label>Usuarios Registrados</label>
-              <div className="stats shadow">
+              <label>Cantidad Entradas</label>
+              <div className="stats">
                 <div className="stat">
-                  <div className="stat-title">Total Page Views</div>
-                  <div className="stat-value">89,400</div>
-                  <div className="stat-desc">21% more than last month</div>
+                  <div className="stat-title">Total </div>
+                  <div className="stat-value">{totalInInventory || 0}</div>
+                  <div className="stat-desc">100% del ultimo mes</div>
                 </div>
               </div>
             </SmallCard>
           </CardsContainer>
           <ListContainer>
-            <List><DynamicTable headers={headers} data={data} /></List>
-            <List><DynamicTable headers={headers} data={data} /></List>
-            <List><DynamicTable headers={headers} data={data} /></List>
+            <List>{usersCount && <ChartVerticalUsers data={dataChartBar} title="Top Users" />}</List>
+            <List>{orderCount && <ChartVerticalUsers data={dataChartBarOrder} title="Top Users" />}</List>
           </ListContainer>
+{/*
           <ActivityContainer><DynamicTableXl headers={headers} data={data} /> </ActivityContainer>
+*/}
         </Content>
       </BackgroundContainer>
     </Main>

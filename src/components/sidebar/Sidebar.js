@@ -39,8 +39,6 @@ function Sidebar() {
             icon: <InventorySVG/>,
             children: [
               {label: "Almacen", key: "/inventory/mainInventory"},
-              {label: "Sucursal Miranda", key: "/inventory/miranda"},
-              {label: "Sucursal Juncal", key: "/inventory/juncal"},
             ],
           },
           {

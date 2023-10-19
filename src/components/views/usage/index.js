@@ -24,7 +24,7 @@ const UsageContent = () => {
         }
       })
       console.log(JSON.stringify(inventoryByStore))
-      setInventaryArray(inventoryByStore)
+      setInventaryArray(inventoryByStore.reverse())
     }
     try {
       getUsage();

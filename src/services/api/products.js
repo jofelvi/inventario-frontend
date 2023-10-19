@@ -22,9 +22,13 @@ const updateProduct = async (id, body) => {
   return response.data;
 };
 
+const addMaterialToProduct = async (id, body) => {
+  const response = await axios.patch(endPoints.products.addMaterialProduct(id), body, config);
+  return response.data;
+};
 const updateInventoryByProductId = async (id, body) => {
   const response = await axios.put(endPoints.products.updateProductForInventary(id), body, config);
   return response.data;
 };
 
-export { addProduct, deleteProduct, updateProduct, updateInventoryByProductId };
+export { addProduct, deleteProduct, updateProduct, updateInventoryByProductId , addMaterialToProduct};

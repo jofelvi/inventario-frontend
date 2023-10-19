@@ -52,13 +52,23 @@ const ProductsContent = () => {
         </Space>
       ),
     },
+    {
+      key: 'action',
+      render: (record) => (
+        <Space size="middle">
+          <Link href={`/products/product/add/${record._id}`}>
+            Añadir items
+          </Link>
+        </Space>
+      ),
+    },
   ];
 
   useEffect(() => {
     async function getProducts() {
       const response = await axios.get(endPoints.products.getProducts);
       console.log(response.data);
-      setProducts(response.data);
+      setProducts(response.data.reverse());
       setTotalItems(response.data.length);
     }
     try {

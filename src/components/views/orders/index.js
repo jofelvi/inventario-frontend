@@ -57,7 +57,7 @@ const OrdersContent = () => {
   useEffect(() => {
     async function getProducts() {
       const response = await axios.get(endPoints.orders.getOrders);
-      setOrders(response.data);
+      setOrders(response.data.reverse());
       setTotalItems(response.data.length);
     }
     try {

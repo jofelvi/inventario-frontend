@@ -5,9 +5,8 @@ import endPoints from '@services/api';
 import {useAuth} from "@hooks/useAuth";
 import {useRouter} from "next/router";
 import useAlert from "@hooks/useAlert";
-import {addMaterialToProduct} from "@services/api/products";
 
-export default function AddItemToProduct({  order, id}) {
+export default function AddOrderItem({  order, id}) {
   const { alert, setAlert, toggleAlert } = useAlert();
   const formRef = useRef(null);
   const [materials, setMaterials] = useState([]);
@@ -23,12 +22,18 @@ export default function AddItemToProduct({  order, id}) {
   ]);
 
   useEffect(() => {
+    console.log("id order", id)
+    async function getMaterial() {
+      const responseMaterials = await axios.get(endPoints.material.getMaterials);
+      setMaterials(responseMaterials.data);
+    }
+    try {
       getMaterial();
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
-  const getMaterial = async () => {
-    const responseMaterials = await axios.get(endPoints.material.getMaterials);
-    setMaterials(responseMaterials.data);
-  }
+
   const handleAddItem = () => {
     setInventoryItems([...inventoryItems, { materialId: '', quantity: '' }]);
   };
@@ -48,22 +53,24 @@ export default function AddItemToProduct({  order, id}) {
     }));
 
     const data = {
+      orderId: id,
       materials: items,
+      userId:user.id
     };
 
     console.log('data', data);
 
-    const res = addMaterialToProduct(id,data).then((res)=>{
+    const res = addOrderItem(data).then((res)=>{
       console.log(res)
       setAlert({
         active: true,
-        message: 'materiales añadidos exitosamente',
+        message: 'Orden añadida exitosamente',
         type: 'success',
         autoClose: true,
       });
       setTimeout(() => {
         formRef.current.reset();
-        router.push('/products');
+        router.push('/orders');
       }, "1000");
 
     }).catch((error) => {

@@ -14,21 +14,21 @@ const StoreDetail = () => {
   const { id } = router.query;
 
   useEffect(() => {
-    async function getStoreDetails() {
-      const response = await axios.get(endPoints.store.getStore(id));
-      setStoreDetails(response.data);
-      console.log(response.data)
-    }
     getStoreDetails();
   }, [id]);
 
-
-  return (
+  const getStoreDetails = async () =>{
+    const response = await axios.get(endPoints.store.getStore(id));
+    setStoreDetails(response.data);
+    console.log(response.data)
+  }
+  storeDetails
+    return (
       <Main>
         <Sidebar />
         <BackgroundContainer>
           <FlexC>
-            <Title> {storeDetails?.name}</Title>
+            <Title> {storeDetails?.storeName || 'hola'}</Title>
             <Link href={'/stores'}>
               <Subtitle>Atras</Subtitle>
             </Link>
@@ -38,7 +38,7 @@ const StoreDetail = () => {
               <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nombre
+                  Nombre del almacen
                 </th>
               </tr>
               </thead>
@@ -47,7 +47,10 @@ const StoreDetail = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{storeDetails?.name}</div>
+                          <div className="text-sm font-medium text-gray-900">{storeDetails?.storeName}</div>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">status: {storeDetails?.status === 'active'?  'activa' : 'No activa'}</div>
                         </div>
                       </div>
                     </td>

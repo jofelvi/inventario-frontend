@@ -51,9 +51,10 @@ export const FlexC = styled.div`
 `;
 
 export const SmallCard = styled.div`
-  padding: 12px ;
-  background: #E5F6FF;
+  padding: 12px;
+  background: #E5F6FF;;
   border-radius: 30px;
+  width: 200px;
 `;
 
 
@@ -67,8 +68,7 @@ export const CardsContainer = styled.div`
     border: 1px solid #E5E7EB;
     box-shadow: 0px 0.7px 2.5px 1px rgb(0 0 0 / 5%);
     border-radius: 16px;
-    padding: 20px;
-    justify-content: center; 
+    justify-content: center;
 `;
 
 export const ListContainer = styled.div`

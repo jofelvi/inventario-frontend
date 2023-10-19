@@ -61,7 +61,7 @@ const MaterialsContent = () => {
     console.log("entro a materiales")
     async function getMaterials() {
       const response = await axios.get(endPoints.material.getMaterials);
-      setMaterials(response.data);
+      setMaterials(response.data.reverse());
       setTotalItems(response.data.length);
       console.log(response.data);
     }

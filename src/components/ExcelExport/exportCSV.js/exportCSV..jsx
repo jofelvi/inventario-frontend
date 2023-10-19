@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
 import axios from "axios";
 
-const ExportCSV = () => {
+const ExportCSV = (props) => {
     const fileName = "users-detail";
     const [userData, setUserData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -14,38 +14,19 @@ const ExportCSV = () => {
         { label: "Phone", key: "phone" }
     ];
 
-    useEffect(() => {
-        getUserData();
-    }, []);
-
-    const getUserData = () => {
-        setLoading(true);
-        axios.get('https://jsonplaceholder.typicode.com/users')
-            .then((res) => {
-                setUserData(res.data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.log("Error: ", err);
-                setLoading(false);
-            })
-    }
-
     return (
         <div className='container'>
             <button
-                variant="contained"
                 color="primary"
                 className='export-btn'
             >
                 <CSVLink
-                    headers={headers}
-                    data={userData}
-                    filename={fileName}
+                    headers={props.headers}
+                    data={props.dataExcel}
+                    filename={props.fileName}
                     style={{ "textDecoration": "none", "color": "#fff" }}
-                >
-                    {loading ? 'Loading csv...' : 'Export Data'}
-                </CSVLink>
+                />
+
             </button>
 
         </div>

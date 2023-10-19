@@ -26,22 +26,14 @@ const StoreContent = () => {
         title: 'Nombre de la Tienda',
         dataIndex: 'storeName',
         key: 'storeName',
-        render: (text) => <a>{text}</a>,
+        render: (_,record) => <Link href={`/stores/store/${record._id}`}>
+          <label>{record.storeName}</label>
+        </Link>
       },
       {
         title: 'Fecha de Creación',
         dataIndex: 'dateCreate',
         key: 'dateCreate',
-      },
-      {
-        title: 'Estado',
-        dataIndex: 'status',
-        key: 'status',
-        render: (record) => (
-           <div>
-             {record === "active" ? "Activa" : "Eliminada"}
-           </div>
-        ),
       },
       {
         key: 'action',
@@ -61,7 +53,7 @@ const StoreContent = () => {
     try {
       const response = await axios.get(endPoints.store.getStores);
       const storesActives = response.data.filter((item)=> item.status === "active")
-      setStores(storesActives);
+      setStores(storesActives.reverse());
       setTotalItems(storesActives.length);
       console.log(response.data);
     } catch (error) {
@@ -81,6 +73,7 @@ const StoreContent = () => {
         console.log(error);
       }
     };
+  console.table(stores)
     return (
       <>
         <Main>
