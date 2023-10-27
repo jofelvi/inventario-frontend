@@ -9,26 +9,15 @@ export default function AddProduct({ setOpen, setAlert, product }) {
   const router = useRouter();
   const [stores, setStores] = useState()
   const [store, setStore] = useState()
-
-  useEffect(() => {
-    getStores()
-    setStore(product?.storeId)
-  }, []);
-
-  useEffect(() => {
-
-  }, [store]);
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
     const selectedBranchId = formData.get('branch');
     const selectedBranch = stores.find((branch) => branch._id === store);
-    console.log(selectedBranch?.storeName)
     const data = {
       name: formData.get('name'),
       price: parseFloat(formData.get('price')),
       unit: formData.get('unit'),
-      quantity: formData.get('quantity'),
       storeName: selectedBranch?.storeName || '',
       storeId: store || selectedBranchId,
     };
@@ -58,8 +47,11 @@ export default function AddProduct({ setOpen, setAlert, product }) {
       formRef.current.reset();
     }
   };
+  useEffect(() => {
+    getStores()
+  }, []);
 
-  const  getStores = async ()=> {
+  const getStores = async ()=> {
     try {
       const response = await axios.get(endPoints.store.getStores);
       const storesActives = response.data.filter((item)=> item.status === "active")
@@ -111,7 +103,7 @@ export default function AddProduct({ setOpen, setAlert, product }) {
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               />
             </div>
-            <div className="col-span-6 sm:col-span-3">
+          {/*  <div className="col-span-6 sm:col-span-3">
               <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
                 Cantidad Inicial
               </label>
@@ -122,10 +114,10 @@ export default function AddProduct({ setOpen, setAlert, product }) {
                 id="unit"
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               />
-            </div>
+            </div>*/}
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-                Sucursal
+                Sucursal que pertenecen los materiales
               </label>
               <select
                 id="branch"

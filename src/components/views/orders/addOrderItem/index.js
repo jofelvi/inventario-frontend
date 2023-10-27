@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { addOrderItem } from '@services/api/orders';
+import {addOrderItem, updateOrder} from '@services/api/orders';
 import axios from 'axios';
 import endPoints from '@services/api';
 import {useAuth} from "@hooks/useAuth";
@@ -7,7 +7,7 @@ import {useRouter} from "next/router";
 import useAlert from "@hooks/useAlert";
 import {addMaterialToProduct} from "@services/api/products";
 
-export default function AddItemToProduct({  order, id}) {
+export default function AddItemToProduct({ isProdut, order, id}) {
   const { alert, setAlert, toggleAlert } = useAlert();
   const formRef = useRef(null);
   const [materials, setMaterials] = useState([]);
@@ -18,16 +18,27 @@ export default function AddItemToProduct({  order, id}) {
     id: auth?.user?._id,
     email: auth?.user?.email,
   };
+
   const [inventoryItems, setInventoryItems] = useState([
     { materialId: '', quantity: '' },
   ]);
 
   useEffect(() => {
-      getMaterial();
+    !isProdut ? getOrderById() : null
+    getMaterials()
   }, []);
-  const getMaterial = async () => {
+  const getMaterialByStore = async (orderIdStore) => {
+    const responseMaterials = await axios.get(endPoints.inventory.getMaterialsByStore(orderIdStore));
+    //setMaterials(responseMaterials.data);
+  }
+  const getMaterials= async (orderIdStore) => {
     const responseMaterials = await axios.get(endPoints.material.getMaterials);
     setMaterials(responseMaterials.data);
+  }
+  const getOrderById = async () => {
+    const responseOrder = await axios.get(endPoints.orders.getOrder(id));
+    console.log(responseOrder.data)
+    getMaterialByStore();
   }
   const handleAddItem = () => {
     setInventoryItems([...inventoryItems, { materialId: '', quantity: '' }]);
@@ -37,6 +48,7 @@ export default function AddItemToProduct({  order, id}) {
     updatedItems.splice(index, 1);
     setInventoryItems(updatedItems);
   };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
@@ -51,9 +63,7 @@ export default function AddItemToProduct({  order, id}) {
       materials: items,
     };
 
-    console.log('data', data);
-
-    const res = addMaterialToProduct(id,data).then((res)=>{
+    const res = updateOrder(id,data).then((res)=>{
       console.log(res)
       setAlert({
         active: true,
@@ -63,7 +73,7 @@ export default function AddItemToProduct({  order, id}) {
       });
       setTimeout(() => {
         formRef.current.reset();
-        router.push('/products');
+        router.push('/orders');
       }, "1000");
 
     }).catch((error) => {
@@ -75,7 +85,6 @@ export default function AddItemToProduct({  order, id}) {
       });
     });
   }
-
 
   return (
       <form ref={formRef} onSubmit={handleSubmit}>
@@ -103,7 +112,7 @@ export default function AddItemToProduct({  order, id}) {
                         className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >
                       {
-                        materials?.map((material) => (
+                        materials.length > 0 && materials?.map((material) => (
                             <option
                                 key= {material?._id}
                                 value={material?._id}

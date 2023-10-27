@@ -16,7 +16,7 @@ const Login = () => {
         const email = emailRef.current.value;
         const password = passwordRef.current.value;
 
-        auth.singIn(email, password).then(() => {
+        auth.signIn(email, password).then(() => {
                 router.push('/inventory/mainInventory')
             },
             (reason) => {

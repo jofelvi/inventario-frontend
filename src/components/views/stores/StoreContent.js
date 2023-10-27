@@ -9,17 +9,33 @@ import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
 import Link from 'next/link';
 import AddStore from './addStore';
-import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
+import {DeleteOutlined, EditOutlined, UserOutlined} from "@ant-design/icons";
+import ExportCSV from "@components/ExcelExport/exportCSV.js/exportCSV.";
+import {UserContainer, UserLabel} from "@components/views/materials/styles";
+import {Avatar} from "antd";
+import {useAuth} from "@hooks/useAuth";
 
 const StoreContent = () => {
     const [open, setOpen] = useState(false);
     const [stores, setStores] = useState([]);
     const { alert, setAlert, toggleAlert } = useAlert();
     const [totalItems, setTotalItems] = useState(0);
+    const auth = useAuth();
+
+    const userData = {
+      name: auth?.user?.name,
+      email: auth?.user?.email,
+      role: auth?.user?.role,
+    };
 
     useEffect(() => {
       getStores();
     }, [alert, setAlert]);
+
+  const headersExcel = [
+    { label: "storeName", key: "storeName" },
+    { label: "dateCreate", key: "dateCreate" },
+  ];
 
     const columns = [
       {
@@ -47,7 +63,6 @@ const StoreContent = () => {
         ),
       },
     ];
-
 
   const  getStores = async ()=> {
     try {
@@ -82,6 +97,10 @@ const StoreContent = () => {
             <FlexC>
               <FlexR>
                 <Title>Tiendas</Title>
+                <UserContainer>
+                  <Avatar size="small" icon={<UserOutlined />} />
+                  <UserLabel>{userData.name}</UserLabel>
+                </UserContainer>
               </FlexR>
               {open ? (
                 <Subtitle onClick={() => setOpen(false)}>Atrás</Subtitle>
@@ -90,6 +109,9 @@ const StoreContent = () => {
               )}
             </FlexC>
             <Content>
+              <div style={{display:"flex", justifyContent: "flex-end", marginBottom: 10}}>
+                <ExportCSV headers={headersExcel} data={stores} nameFile={'Tiendas '} />
+              </div>
               <Alert alert={alert} handleClose={toggleAlert} />
               {open ? (
                 <AddStore setOpen={setOpen} setAlert={setAlert} />

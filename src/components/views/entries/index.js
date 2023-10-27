@@ -9,6 +9,7 @@ import Alert from '@common/Alert';
 import { useAuth } from '@hooks/useAuth';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
+import ExportCSV from "@components/ExcelExport/exportCSV.js/exportCSV.";
 
 const EntryContent = () => {
   const [open, setOpen] = useState(false);
@@ -25,8 +26,8 @@ const EntryContent = () => {
 
   useEffect(() => {
     async function getEntries() {
-      //const response = await axios.get(endPoints.entries.getEntries);
-      //setEntries(response.data);
+      const response = await axios.get(endPoints.entries.getEntries);
+      setEntries(response.data);
     }
     try {
       getEntries();
@@ -34,6 +35,14 @@ const EntryContent = () => {
       console.log(error);
     }
   }, [alert]);
+
+  const headersExcel = [
+    { label: "createAt", key: "createAt" },
+    { label: "sourceStoreName", key: "sourceStoreName" },
+    { label: "materialName", key: "materialName" },
+    { label: "quantity", key: "quantity" },
+    { label: "destinationStoreName", key: "destinationStoreName" },
+  ];
 
   return (
     <>
@@ -51,6 +60,9 @@ const EntryContent = () => {
             {open ? <Subtitle onClick={() => setOpen(false)}>Atras</Subtitle> : <Subtitle onClick={() => setOpen(true)}>Añadir Entrada</Subtitle>}
           </FlexC>
           <Content>
+            <div style={{display:"flex", justifyContent: "flex-end", marginBottom: 10}}>
+              {entries && <ExportCSV headers={headersExcel} data={entries} nameFile={'Entradas '} />}
+            </div>
             <Alert alert={alert} handleClose={toggleAlert} />
             {open ? <AddEntry setOpen={setOpen} setAlert={setAlert} /> 
             :
@@ -61,7 +73,7 @@ const EntryContent = () => {
                       Fecha
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Usuario
+                      Sucursal Origen
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Material
@@ -70,7 +82,7 @@ const EntryContent = () => {
                       Cantidad
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Sucursal
+                      Sucursal Destino
                     </th>
 
                   </tr>
@@ -79,23 +91,23 @@ const EntryContent = () => {
                   {entries.length >0 && entries?.map((entry) => (
                     <tr key={`Entry-item-${entry.id}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{entry.createAt.substring(0, 10)}</div>
+                        <div className="text-sm text-gray-900">{entry?.createAt?.substring(0, 10)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{entry.user.name}</div>
+                        <div className="text-sm text-gray-900">{entry?.sourceStoreName}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex entrys-center">
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{entry?.material?.name}</div>
+                            <div className="text-sm font-medium text-gray-900">{entry?.materialName}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{entry.quantity} {entry?.material?.unit}</div>
+                        <div className="text-sm text-gray-900">{entry.quantity}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">{entry.branch}</span>
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">{entry.destinationStoreName}</span>
                       </td>
                     </tr>
                   ))}

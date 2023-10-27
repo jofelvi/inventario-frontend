@@ -9,7 +9,9 @@ export default function AddOrder({ setOpen, setAlert}) {
   const formRef = useRef(null);
   const auth = useAuth();
   const router = useRouter();
-  
+  const [stores, setStores] = useState()
+  const [store, setStore] = useState()
+
   const user = {
     id: auth?.user?._id,
     email: auth?.user?.email,
@@ -18,12 +20,17 @@ export default function AddOrder({ setOpen, setAlert}) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
+    const selectedBranchId = formData.get('branch');
+    const selectedBranch = stores.find((branch) => branch._id === store);
+
     console.log("user.id", user.id)
       const data = {
         userId: user.id,
         bill: formData.get('bill'),
         providerName: formData.get('provider'),
         total_price: parseFloat(formData.get('total_price').toString()),
+        storeName: selectedBranch?.storeName || '',
+        storeId: store || selectedBranchId,
       };
 
       console.log(data);
@@ -50,7 +57,18 @@ export default function AddOrder({ setOpen, setAlert}) {
           }); 
     formRef.current.reset();
   };
-
+  useEffect(() => {
+    getStores()
+  }, []);
+  const  getStores = async ()=> {
+    try {
+      const response = await axios.get(endPoints.store.getStores);
+      const storesActives = response.data.filter((item)=> item.status === "active")
+      setStores(storesActives);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <form ref={formRef} onSubmit={handleSubmit}>
       <div className="overflow-hidden">
@@ -90,6 +108,33 @@ export default function AddOrder({ setOpen, setAlert}) {
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               />
             
+            </div>
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
+                Sucursal donde van materiales
+              </label>
+              <select
+                id="branch"
+                name="branch"
+                autoComplete="branch-name"
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={store}
+                onChange={(event) => {
+                  const selectId = event.target.value;
+                  setStore(selectId)
+                }}
+              >
+                {
+                  stores?.map((product) => (
+                    <option
+                      key= {product._id}
+                      value={product._id}
+                    >
+                      {product.storeName}
+                    </option>
+                  ))
+                }
+              </select>
             </div>
           </div>
         </div>

@@ -22,7 +22,6 @@ const Edit = () => {
   const { id } = router.query;
 
   useEffect(() => {
-
     if (!router.isReady) return;
     async function getOrder() {
       const response = await axios.get(endPoints.orders.getOrder(id));

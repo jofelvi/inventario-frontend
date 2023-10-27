@@ -38,5 +38,16 @@ const addOrder = async (body) => {
     const response = await axios.put(endPoints.orders.deleteOrder(id), body, config);
     return response.data;
   };
+
+  const updateOrder = async (id, body) => {
+    const config = {
+      headers: {
+        accept: '*/*',
+        'Content-Type': 'application/json',
+      },
+    };
+    const response = await axios.patch(endPoints.orders.update(id), body, config);
+    return response.data;
+  };
   
-  export { deleteOrder, addOrder, addOrderItem };
+  export { deleteOrder, addOrder, addOrderItem, updateOrder };

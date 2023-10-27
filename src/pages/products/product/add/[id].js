@@ -16,6 +16,7 @@ import {
  } from './styles';
 import useAlert from "@hooks/useAlert";
 import AddItemToProduct from "@components/views/orders/addOrderItem/index";
+import AddItemsToProduct from "@components/views/products/addItemsToProduct";
 
 const Add = () => {
   const router = useRouter();
@@ -46,7 +47,7 @@ const Add = () => {
     <Aling>
       <Content>
         <span> <b>{order.bill}</b></span>
-        <AddItemToProduct order={order} id={id}/>
+        <AddItemsToProduct isProdut={true} order={order} id={id}/>
       </Content>
     </Aling>
     </BackgroundContainer>

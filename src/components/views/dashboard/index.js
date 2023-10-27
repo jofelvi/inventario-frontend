@@ -18,6 +18,9 @@ const DashboardContent = () => {
   const [totalInInventory, setTotalInInventory] = useState()
   const [usersCount, setUsersCount] = useState()
   const [orderCount, setOrderCount] = useState()
+  const [totalProducts, setTotalProducts] = useState()
+  const [totalItemsConsumos, setTotalItemsConsumos] = useState()
+  const [totalItemsTiendas, setTotalItemsTiendas] = useState()
 
   const userData = {
     name: auth?.user?.name,
@@ -29,31 +32,31 @@ const DashboardContent = () => {
       getUsage();
       getUsersCount()
       getOrdersCount()
+      getProducts()
+      getUsage()
+      getStores()
+      getInventory()
   }, [alert]);
 
-  const getUsage = async () => {
-    const response = await axios.get(endPoints.inventory.getALlInventories());
-    const inventories = response.data;
-
-    const { in: inCount, out: outCount } = inventories.reduce(
-      (counts, item) => {
-        if (item.transactionProducts.length > 0) {
-          if (item.transactionProducts[0].typeTransaction === 'out') {
-            counts.out++;
-          } else if (item.transactionProducts[0].typeTransaction === 'in') {
-            counts.in++;
-          }
-        }
-        return counts;
-      },
-      { in: 0, out: 0 }
-    );
-    setTotalItems(inventories.length);
-    setTotalOutInventory(outCount);
-    setTotalInInventory(inCount);
-    setInventaryArray(inventories.filter((item) => item.transactionProducts.length > 0));
+  const getProducts = async ()=> {
+    const response = await axios.get(endPoints.products.getProducts);
+    setTotalProducts(response.data.length);
   }
 
+  const getUsage = async ()=> {
+    const response = await axios.get(endPoints.usage.getUsages);
+    setTotalItemsConsumos(response.data.length)
+  }
+
+  const getInventory= async ()=>  {
+    const response = await axios.get(endPoints.inventory.getALlInventories());
+    setTotalItems(response.data.length);
+  }
+  const getStores = async ()=> {
+    const response = await axios.get(endPoints.store.getStores);
+    const storesActives = response.data.filter((item)=> item.status === "active")
+    setTotalItemsTiendas(storesActives.length);
+  }
   const getUsersCount = async () => {
     const response = await axios.get(endPoints.users.getUsers);
     setUsersCount(response?.data?.total || 0)
@@ -63,23 +66,6 @@ const DashboardContent = () => {
     const response = await axios.get(endPoints.orders.getOrders);
     setOrderCount(response?.data?.length || 0)
   }
-
-  const headers = ['ID', 'Name', 'Job', 'Favorite Color'];
-
-  const data = [
-    { id: '1', name: 'Cy Ganderton', job: 'Quality Control Specialist', favoriteColor: 'Blue' },
-    { id: '2', name: 'Hart Hagerty', job: 'Desktop Support Technician', favoriteColor: 'Purple' },
-    { id: '3', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '4', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '5', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '4', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '5', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '3', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '4', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '5', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '4', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-    { id: '5', name: 'Brice Swyre', job: 'Tax Accountant', favoriteColor: 'Red' },
-  ];
 
   const labels = ['Octubre', 'Noviembre', 'Diciembre'];
 
@@ -111,32 +97,42 @@ const DashboardContent = () => {
           <h2>Bienvenido, {userData.name}!</h2>
           <CardsContainer>
             <SmallCard>
-            <label>Cantidad en stock</label>
+            <label>Cantidad en Materiales</label>
               <div className="stats">
                 <div className="stat">
-                  <div className="stat-title">Total General </div>
+                  <div className="stat-title">Total Materiales </div>
                   <div className="stat-value">{totalItems || 0}</div>
-                  <div className="stat-desc">100% del ultimo mes</div>
+                  <div className="stat-desc"></div>
                 </div>
               </div>
             </SmallCard>
             <SmallCard>
-              <label>Cantidad Salidas</label>
+              <label>Cantidad Productos</label>
               <div className="stats">
                 <div className="stat">
-                  <div className="stat-title">Total </div>
-                  <div className="stat-value">{totalOutInventory|| 0}</div>
-                  <div className="stat-desc">100% del ultimo mes</div>
+                  <div className="stat-title">Total de Productos</div>
+                  <div className="stat-value">{totalProducts|| 0}</div>
+                  <div className="stat-desc"></div>
                 </div>
               </div>
             </SmallCard>
             <SmallCard>
-              <label>Cantidad Entradas</label>
+              <label>Cantidad Consumos</label>
               <div className="stats">
                 <div className="stat">
-                  <div className="stat-title">Total </div>
-                  <div className="stat-value">{totalInInventory || 0}</div>
-                  <div className="stat-desc">100% del ultimo mes</div>
+                  <div className="stat-title">Total de Consumos</div>
+                  <div className="stat-value">{totalItemsConsumos || 0}</div>
+                  <div className="stat-desc"></div>
+                </div>
+              </div>
+            </SmallCard>
+            <SmallCard>
+              <label>Cantidad Tiendas</label>
+              <div className="stats">
+                <div className="stat">
+                  <div className="stat-title">Total de Tiendas</div>
+                  <div className="stat-value">{totalItemsTiendas || 0}</div>
+                  <div className="stat-desc"></div>
                 </div>
               </div>
             </SmallCard>

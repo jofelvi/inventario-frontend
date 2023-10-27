@@ -21,9 +21,7 @@ const ProductDetail = () => {
       setProduct(response.data);
       console.log(response.data);
     }
-    
     getProduct();
-
   }, [router?.isReady]);
 
 
@@ -32,12 +30,15 @@ const ProductDetail = () => {
     <Sidebar />
     <BackgroundContainer>
     <FlexC>
-      <Title>Componentes de {product.name}</Title> 
+      <Title>Lista de material del producto: <strong> {product.name}</strong> </Title>
       <Link href={'/products'}>
         <Subtitle>Atras</Subtitle>
       </Link>
     </FlexC>
       <Content>
+        <div style={{marginBottom: 15}}>
+          <label>Nombre del producto: <strong> {product.name}</strong></label>
+        </div>
       <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -47,7 +48,6 @@ const ProductDetail = () => {
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Cantidad
                     </th>
-
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">

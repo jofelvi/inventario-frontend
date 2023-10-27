@@ -37,6 +37,7 @@ const endPoints = {
         getOrder: (id) => `${API2}/orders/${id}`,
         getOrders: `${API2}/orders`,
         addOrders: `${API2}/orders`,
+        update: (id) => `${API2}/orders/${id}`,
         deleteOrder: (id) => `${API2}/orders/${id}`,
     },
     orderItems: {
@@ -55,16 +56,19 @@ const endPoints = {
     material: {
         getMaterial: (id) => `${API2}/materials/${id}`,
         getMaterials: `${API2}/materials`,
+        getMaterialsByStore: `${API2}/materials`,
         addMaterial: `${API2}/materials`,
         updateMaterial: (id) => `${API2}/materials/${id}`,
         deleteMaterial: (id) => `${API2}/materials/${id}`,
     },
     inventory: {
-        getProductsByStore: (id) => `${API2}/inventory/finbyStore/${id}`,
-        getALlInventories: (id) => `${API2}/inventory`,
-        addMainInventory: `${API}/mainInventory`,
-        updateMainInventory: (id) => `${API}/mainInventory/${id}`,
-        deleteMainInventory: (id) => `${API}/mainInventory/${id}`,
+        getMaterialsByStore: (id) => `${API2}/inventory/finbyStore/${id}`,
+        getALlInventories: () => `${API2}/inventory`,
+        addMainInventory: `${API2}/inventory/mainInventory`,
+        transferMaterials: `${API2}/inventory/transfer-materials`,
+        getAllEntries: `${API2}/inventory/entries`,
+        updateMainInventory: (id) => `${API2}/mainInventory/${id}`,
+        deleteMainInventory: (id) => `${API2}/mainInventory/${id}`,
     },
     mirandaInventory: {
         getMirandaInventory: (id) => `${API}/miranda-inventory/${id}`,

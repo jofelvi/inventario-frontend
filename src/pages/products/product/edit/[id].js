@@ -42,7 +42,8 @@ const Edit = () => {
     </FlexC>
     <Aling>
       <Content>
-      <AddProduct product={product}/>
+
+        <AddProduct product={product}/>
       </Content>
     </Aling>
     </BackgroundContainer>

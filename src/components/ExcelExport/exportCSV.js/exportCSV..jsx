@@ -1,35 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { CSVLink } from 'react-csv';
-import axios from "axios";
+import {DownloadIcon} from "@heroicons/react/solid";
 
-const ExportCSV = (props) => {
-    const fileName = "users-detail";
-    const [userData, setUserData] = useState([]);
-    const [loading, setLoading] = useState(false);
-
-    const headers = [
-        { label: "Id", key: "id" },
-        { label: "Name", key: "name" },
-        { label: "Email", key: "email" },
-        { label: "Phone", key: "phone" }
-    ];
+const ExportCSV = ({headers, data, nameFile}) => {
 
     return (
-        <div className='container'>
-            <button
-                color="primary"
-                className='export-btn'
-            >
-                <CSVLink
-                    headers={props.headers}
-                    data={props.dataExcel}
-                    filename={props.fileName}
-                    style={{ "textDecoration": "none", "color": "#fff" }}
-                />
+              <CSVLink
+                headers={headers}
+                data={data}
+                filename={nameFile}
+                style={{ textDecoration: 'none', color: '#fff' }}
+                className="btn btn-primary"
+              >
+                Descargar <DownloadIcon className="w-5 h-5 mr-2 inline-block" />
 
-            </button>
-
-        </div>
+              </CSVLink>
     );
 }
 

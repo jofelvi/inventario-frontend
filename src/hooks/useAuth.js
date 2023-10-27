@@ -1,6 +1,8 @@
-import React, { useState, useContext, createContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, createContext, useEffect } from 'react';
 import Cookie from 'js-cookie';
 import axios from 'axios';
+import jwt from 'jsonwebtoken';
+
 import endPoints from '@services/api/index';
 
 const AuthContext = createContext();
@@ -20,18 +22,20 @@ function useProvideAuth() {
   const API_KEY = 'ABC123';
   const options = {
     headers: {
-      Auth: API_KEY
+      Auth: API_KEY,
     },
   };
 
-  const singIn = async (email, password) => {
+  const signIn = async (email, password) => {
     const res = await axios.post(endPoints.auth.login, { email, password }, options);
-    console.log({res})
+    console.log({ res });
     if (res) {
       const token = res.data.token;
       try {
         localStorage.setItem('token', token);
-        setUser(res.data.usuario);
+        const decodedToken = jwt.decode(token);
+        console.log({decodedToken})// Decodifica el token
+        setUser(decodedToken);
       } catch (error) {
         setUser(null);
       }
@@ -42,34 +46,41 @@ function useProvideAuth() {
     try {
       const response = await axios.post(endPoints.auth.signUp2, newUser, options);
       if (response.status === 201) {
-        const {message, token, usuario} = response.data
+        const { message, token, usuario } = response.data;
         localStorage.setItem('token', token);
-        setUser(usuario);
+        const decodedToken = jwt.decode(token); // Decodifica el token
+        setUser(decodedToken);
         return response.data;
       }
-      console.log("no entro");
-      
+      console.log('no entro');
     } catch (error) {
       throw new Error(error.response.data.errors[0].msg);
     }
   };
 
-  useEffect(() => {  }, []);
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      const decodedToken = jwt.decode(storedToken);
+      setUser(decodedToken);
+    }
+  }, []);
 
   const logout = () => {
     Cookie.remove('token');
     setUser(null);
     delete axios.defaults.headers.authorization;
-    window.location.href = '/'
-  }
+    window.location.href = '/';
+  };
 
   return {
     user,
     error,
     setError,
-    singIn,
+    signIn,
     logout,
-    createUser
+    createUser,
   };
-
 }
+
+export default useProvideAuth;

@@ -8,17 +8,24 @@ import AddProduct from '@components/views/products/addProduct/index';
 import { deleteProduct } from '@services/api/products';
 import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import {EditOutlined, DeleteOutlined, UserOutlined} from '@ant-design/icons';
+import ExportCSV from "@components/ExcelExport/exportCSV.js/exportCSV.";
+import {FlexR, UserContainer, UserLabel} from "@components/views/materials/styles";
+import {Avatar} from "antd";
+import {useAuth} from "@hooks/useAuth";
 
 const ProductsContent = () => {
   const [open, setOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const { alert, setAlert, toggleAlert } = useAlert();
   const [totalItems, setTotalItems] = useState(0);
+  const auth = useAuth();
 
-  /*const products = useFetch(endPoints.product.getproducts);
-  console.log(products);*/
-
+  const userData = {
+    name: auth?.user?.name,
+    email: auth?.user?.email,
+    role: auth?.user?.role,
+  };
   const columns = [
     {
       title: 'Nombre',
@@ -57,11 +64,17 @@ const ProductsContent = () => {
       render: (record) => (
         <Space size="middle">
           <Link href={`/products/product/add/${record._id}`}>
-            Añadir items
+            Añadir Materiales
           </Link>
         </Space>
       ),
     },
+  ];
+
+  const headersExcel = [
+    { label: "name", key: "name" },
+    { label: "price", key: "price" },
+    { label: "unit", key: "unit" },
   ];
 
   useEffect(() => {
@@ -105,10 +118,19 @@ const ProductsContent = () => {
         <Sidebar />
         <BackgroundContainer>
           <FlexC>
-            <Title>Productos</Title>
+            <FlexR>
+              <Title>Productos</Title>
+              <UserContainer>
+                <Avatar size="small" icon={<UserOutlined />} />
+                <UserLabel>{userData.name}</UserLabel>
+              </UserContainer>
+            </FlexR>
             {open ? <Subtitle onClick={() => setOpen(false)}>Atras</Subtitle> : <Subtitle onClick={() => setOpen(true)}>Añadir Producto</Subtitle>}
           </FlexC>
           <Content>
+            <div style={{display:"flex", justifyContent: "flex-end", marginBottom: 10}}>
+              <ExportCSV headers={headersExcel} data={products} nameFile={'Productos '} />
+            </div>
             <Alert alert={alert} handleClose={toggleAlert} />
             {open ? <AddProduct setOpen={setOpen} setAlert={setAlert} /> 
             :

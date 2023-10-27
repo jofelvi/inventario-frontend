@@ -8,11 +8,15 @@ import { Main, Content, BackgroundContainer, Title, Subtitle, FlexC,   FlexR,
 
   import { useAuth } from '@hooks/useAuth';
 import { UserOutlined } from '@ant-design/icons';
-import { Avatar } from 'antd';
+import { Avatar, Select  } from 'antd';
+import ExportCSV from "@components/ExcelExport/exportCSV.js/exportCSV.";
 
+const { Option } = Select;
 
 const MainInventoryContent = () => {
   const [inventory, setInventory] = useState([]);
+  const [selectedStore, setSelectedStore] = useState('');
+  const [showAllInventories, setShowAllInventories] = useState(true)
 
   const auth = useAuth();
 
@@ -22,20 +26,38 @@ const MainInventoryContent = () => {
     role: auth?.user?.role,
   };
   useEffect(() => {
-    async function getInventory() {
-      const response = await axios.get(endPoints.mainInventory.getMainInventorys);
-      console.log(response.data);
-      setInventory(response.data);
-      
-    }
+    console.log(auth.user)
     try {
-      //getInventory();
+      getInventory();
+
     } catch (error) {
       console.log(error);
     }
   }, []);
 
-  console.log({auth})
+
+  const getInventory= async ()=>  {
+    const response = await axios.get(endPoints.inventory.getALlInventories());
+    console.log(response.data);
+    setInventory(response.data);
+  }
+
+  const handleStoreChange = (value) => {
+    setSelectedStore(value);
+    setShowAllInventories(false)
+  };
+
+  const toggleFilters = () => {
+    setShowAllInventories(!showAllInventories);
+  };
+
+  const uniqueStores = [...new Set(inventory.map(item => item.storeId))];
+
+  const headersExcel = [
+    { label: "storeName", key: "storeName" },
+    { label: "materialName", key: "materialName" },
+    { label: "quantityTotal", key: "quantityTotal" },
+  ];
 
   return (
     <>
@@ -51,8 +73,44 @@ const MainInventoryContent = () => {
             </UserContainer>
             </FlexR>
           </FlexC>
+
           <Content>
+            <div style={{display:"flex", justifyContent: "flex-end", marginBottom: 10}}>
+              <ExportCSV headers={headersExcel} data={inventory} nameFile={'Inventario '} />
+            </div>
+            <div style={{display: "flex", justifyContent: "right", marginBottom: 15}}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showAllInventories}
+                  onChange={toggleFilters}
+                  style={{marginRight:15}}
+                />
+                Ver Todos
+              </label>
+            </div>
+            <div style={{display: "flex", justifyContent: "right", marginBottom: 15}}>
+
+              <Select
+                style={{ width: 200 }}
+                placeholder="Seleccionar tienda"
+                onChange={handleStoreChange}
+                value={selectedStore}
+                labelInValue=''
+              >
+                {uniqueStores.map(storeId => {
+                  const store = inventory.find(item => item.storeId === storeId);
+                  return (
+                    <Option key={store.storeId} value={store.storeId}>
+                      {store.storeName}
+                    </Option>
+                  );
+                })}
+              </Select>
+            </div>
+
           <table className="min-w-full divide-y divide-gray-200">
+
                 <thead className="bg-gray-50">
                   <tr>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -62,29 +120,48 @@ const MainInventoryContent = () => {
                       Cantidad
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Precio Total
+                      Sucursal
                     </th>
-
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {inventory?.map((item) => (
+                 { showAllInventories ? inventory.map((item) => (
                     <tr key={`Inventory-item-${item.id}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{item.material.name}</div>
+                            <div className="text-sm font-medium text-gray-900">{item.materialName}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{item.quantity.toFixed(2)} {item.material.unit}</div>
+                        <div className="text-sm text-gray-900">{item.quantityTotal}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">${item.total.toFixed(2)}</span>
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">{item.storeName}</span>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                     inventory
+                       .filter((item) => !selectedStore || item.storeId === selectedStore)
+                       .map((item) => (
+                         <tr key={`Inventory-item-${item.id}`}>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="flex items-center">
+                               <div className="ml-4">
+                                 <div className="text-sm font-medium text-gray-900">{item.materialName}</div>
+                               </div>
+                             </div>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="text-sm text-gray-900">{item.quantityTotal}</div>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">{item.storeName}</span>
+                           </td>
+                         </tr>
+                       ))
+                 )}
                 </tbody>
               </table>
           </Content>

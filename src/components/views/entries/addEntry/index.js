@@ -4,56 +4,69 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import endPoints from '@services/api';
 import { useAuth } from '@hooks/useAuth';
-import {
-  updateMainInventory,
-  updateMirandaInventory,
-  updateJuncalInventory,
-  addJuncalInventory,
-  addMirandaInventory
-} from '@services/api/inventory';
 
 export default function AddEntry({ setOpen, setAlert}) {
   const formRef = useRef(null);
   const [mainInventory, setMainInventory] = useState([]);
   const auth = useAuth();
   const router = useRouter();
-  
+  const [stores, setStores] = useState()
+  const [storeTo, setStoreTo] = useState()
+  const [storeFrom, setStoreFrom] = useState()
+  const [materialsByStore, setMaterialsByStore] = useState()
+
   const user = {
     id: auth?.user?.id,
   };
 
   useEffect(() => {
-    async function getInventory() {
-      //const response = await axios.get(endPoints.mainInventory.getMainInventorys);
+    async function getInventoryAndMaterials() {
       const response = await axios.get(endPoints.material.getMaterials);
       console.log(response.data)
-      setMainInventory(response.data);
     }
     try {
-      getInventory();
+      getInventoryAndMaterials();
+      getStores()
     } catch (error) {
       console.log(error);
     }
   }, []);
 
+  useEffect(() => {
+    getMaterialsByStore(storeFrom)
+  }, [storeFrom]);
+
+  const getMaterialsByStore = async (id) => {
+    console.log({id})
+    const responseInventory = await axios.get(endPoints.inventory.getMaterialsByStore(id));
+    setMaterialsByStore(responseInventory.data);
+
+    console.log({responseInventory})
+  }
+  const getStores = async ()=> {
+    try {
+      const response = await axios.get(endPoints.store.getStores);
+      const storesActives = response.data.filter((item)=> item.status === "active")
+      setStores(storesActives);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
-    
-    async function getInventoryId() {
-      //const response = await axios.get(endPoints.mainInventory.getMainInventory(formData.get('materialId')));
-      //updateMainInventory(inventory.id, body);
 
       const data = {
-        storeId: formData.get('branch'),
-        storeName: formData.get('branch'),
-        userId: user.id,
+        materialId: formData.get('materialId'),
+        materialName: materialsByStore.find((material) => material.materialId === formData.get('materialId'))?.materialName || '',
         quantity: parseFloat(formData.get('quantity')),
-        materialId: materialID,
-        materialName: materialName
-      }; 
-
+        destinationStoreId: storeTo,
+        destinationStoreName: stores.find((store) => store._id === storeTo)?.storeName || '',
+        sourceStoreId: storeFrom,
+        sourceStoreName: stores.find((store) => store._id === storeFrom)?.storeName || '',
+      };
+    console.log({data})
          addEntry(data)
           .then(() => {
             setAlert({
@@ -64,65 +77,19 @@ export default function AddEntry({ setOpen, setAlert}) {
             });
             setOpen(true);
             router.push('/entries');
+            formRef.current.reset()
+
           })
           .catch((error) => {
+            console.log({error})
             setAlert({
               active: true,
-              message: error.message,
+              message: error.response.data.message,
               type: 'error',
               autoClose: true,
             });
           });
 
-      if(formData.get('branch') === 'Miranda') {
-        const response = await axios.get(endPoints.mirandaInventory.getMirandaInventorys);
-        const inventoryMiranda = response.data;
-
-        if (inventoryMiranda.find(inventario => inventario.material.id === materialID)){
-          inventoryMiranda.map((inventario) => {
-            if (inventario.material.id === materialID){
-              const newQuantity = inventario.quantity + parseFloat(formData.get('quantity'));
-              const dataMiranda = {
-                quantity: newQuantity
-              }
-              updateMirandaInventory(inventario.id, dataMiranda);
-            }
-          })
-        }else {
-          const body = {
-            quantity: parseFloat(formData.get('quantity')),
-            materialId: materialID,
-          }
-          console.log(body);
-          addMirandaInventory(body).then((response) => {
-          });
-        }
-
-      }else if(formData.get('branch') === 'Juncal') {
-        const response = await axios.get(endPoints.juncalInventory.getJuncalInventorys);
-        const inventoryJuncal = response.data;
-
-        if (inventoryJuncal.find(inventario => inventario.material.id === materialID)){
-          inventoryJuncal.map((inventario) => {
-            if (inventario.material.id === materialID){
-              const newQuantity = inventario.quantity + parseFloat(formData.get('quantity'));
-              const dataJuncal = {
-                quantity: newQuantity
-              }
-              updateJuncalInventory(inventario.id, dataJuncal);
-            }
-          })
-        }else {
-          const body = {
-            quantity: parseFloat(formData.get('quantity')),
-            materialId: materialID,
-          }
-          addJuncalInventory(body);
-        }
-      }
-    } 
-   //getInventoryId();
-    formRef.current.reset()    
   };
 
   return (
@@ -130,6 +97,34 @@ export default function AddEntry({ setOpen, setAlert}) {
       <div className="overflow-hidden">
         <div className="px-4 py-5 bg-white sm:p-6">
           <div className="grid grid-cols-6 gap-6">
+            <div className="col-span-6 sm:col-span-3">
+              <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
+                Sucursal de origen
+              </label>
+              <select
+                id="branch"
+                name="branch"
+                autoComplete="branch-name"
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={storeFrom}
+                onChange={(event) => {
+                  const selectId = event.target.value;
+                  console.log({selectId})
+                  setStoreFrom(selectId)
+                }}
+              >
+                {
+                  stores?.map((product) => (
+                    <option
+                      key= {product._id}
+                      value={product._id}
+                    >
+                      {product.storeName}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
             <div className="col-span-6 sm:col-span-3">
             <label htmlFor="materialId" className="block text-sm font-medium text-gray-700">
                 Material 
@@ -141,12 +136,12 @@ export default function AddEntry({ setOpen, setAlert}) {
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 {
-                 mainInventory?.map((inventory) => (
+                  materialsByStore?.map((material) => (
                     <option
-                      key= {inventory._id}
-                      value={inventory._id}
+                      key= {material.materialId}
+                      value={material.materialId}
                     >
-                      {inventory.name}
+                      {material.materialName}
                     </option>
                     
                   ))
@@ -166,17 +161,30 @@ export default function AddEntry({ setOpen, setAlert}) {
               />
             </div>
             <div className="col-span-6 sm:col-span-3">
-            <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
-                Sucursal
+              <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
+                Sucursal de destino
               </label>
-            <select
-                id="branch"
-                name="branch"
-                autoComplete="branch-name"
+              <select
+                id="branchTo"
+                name="branchTo"
+                autoComplete="branch-name-to"
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={storeTo}
+                onChange={(event) => {
+                  const selectId = event.target.value;
+                  setStoreTo(selectId)
+                }}
               >
-                <option value="Miranda">Miranda</option>
-                <option value="Juncal">Juncal</option>
+                {
+                  stores?.map((product) => (
+                    <option
+                      key= {product._id}
+                      value={product._id}
+                    >
+                      {product.storeName}
+                    </option>
+                  ))
+                }
               </select>
             </div>
           </div>

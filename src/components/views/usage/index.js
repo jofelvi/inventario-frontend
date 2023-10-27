@@ -6,7 +6,11 @@ import { Main, Content, BackgroundContainer, Title, Subtitle, FlexC } from '@com
 import AddUsage from '@components/views/usage/addUsage/index';
 import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
-import {Collapse, Table} from "antd";
+import {Avatar, Collapse, Table} from "antd";
+import ExportCSV from "@components/ExcelExport/exportCSV.js/exportCSV.";
+import {FlexR, UserContainer, UserLabel} from "@components/views/materials/styles";
+import {UserOutlined} from "@ant-design/icons";
+import {useAuth} from "@hooks/useAuth";
 const { Panel } = Collapse;
 const UsageContent = () => {
   const [open, setOpen] = useState(false);
@@ -14,17 +18,20 @@ const UsageContent = () => {
   const [inventaryArray, setInventaryArray] = useState()
   const [totalItems, setTotalItems] = useState()
 
+  const auth = useAuth();
+
+  const userData = {
+    name: auth?.user?.name,
+    email: auth?.user?.email,
+    role: auth?.user?.role,
+  };
+
   useEffect(() => {
     async function getUsage() {
-      const response = await axios.get(endPoints.inventory.getALlInventories());
+      const response = await axios.get(endPoints.usage.getUsages);
       setTotalItems(response.data.length)
-      const inventoryByStore= response.data.filter((item)=> {
-        if ( item.transactionProducts.length > 0 ) {
-         return  item.transactionProducts[0].typeTransaction === 'out'
-        }
-      })
-      console.log(JSON.stringify(inventoryByStore))
-      setInventaryArray(inventoryByStore.reverse())
+      console.log(response.data)
+      setInventaryArray(response.data.reverse())
     }
     try {
       getUsage();
@@ -36,56 +43,51 @@ const UsageContent = () => {
   const columns = [
     {
       title: 'Fecha',
-      dataIndex: 'updateAt',
-      key: 'updateAt',
-      render: (updateAt) => <span>{new Date(updateAt).toLocaleDateString()}</span>,
+      dataIndex: 'date',
+      key: 'date',
+      render: (date) => <span>{new Date(date).toLocaleDateString()}</span>,
     },
     {
-      title: 'Usuario',
-      dataIndex: 'userId',
-      key: 'userId'
-    },
-    {
-      title: 'Producto',
+      title: 'productName',
       dataIndex: 'productName',
-      key: 'productName',
+      key: 'productName'
     },
     {
-      title: 'Cantidad',
-      dataIndex: 'quantityTotal',
-      key: 'quantityTotal',
-    },
-    {
-      title: 'Sucursal',
+      title: 'storeName',
       dataIndex: 'storeName',
       key: 'storeName',
     },
     {
-      title: 'Transacciones',
-      key: 'transactionProducts',
-      render: (record) => (
-        <Collapse>
-          {record.transactionProducts.map((transaction, index) => (
-            <Panel header={`Transacción ${index + 1}`} key={`transaction-${index}`}>
-              <p>Tipo de Transacción: {transaction.typeTransaction}</p>
-              <p>Cantidad de Transacción: {transaction.quantityTransaction}</p>
-            </Panel>
-          ))}
-        </Collapse>
-      ),
+      title: 'quantity',
+      dataIndex: 'quantity',
+      key: 'quantity',
     },
   ];
-
+  const headersExcel = [
+    { label: "date", key: "date" },
+    { label: "productName", key: "productName" },
+    { label: "quantity", key: "quantity" },
+    { label: "storeName", key: "storeName" },
+  ];
   return (
     <>
       <Main>
         <Sidebar />
         <BackgroundContainer>
           <FlexC>
-            <Title>Consumo de Productos</Title>
+            <FlexR>
+              <Title>Consumo de Productos</Title>
+              <UserContainer>
+                <Avatar size="small" icon={<UserOutlined />} />
+                <UserLabel>{userData.name}</UserLabel>
+              </UserContainer>
+            </FlexR>
             {open ? <Subtitle onClick={() => setOpen(false)}>Atras</Subtitle> : <Subtitle onClick={() => setOpen(true)}>Añadir Consumo</Subtitle>}
           </FlexC>
           <Content>
+            <div style={{display:"flex", justifyContent: "flex-end", marginBottom: 10}}>
+              {inventaryArray && <ExportCSV headers={headersExcel} data={inventaryArray} nameFile={'Consumos '} />}
+            </div>
             <Alert alert={alert} handleClose={toggleAlert} />
             {open ? (
               <AddUsage setOpen={setOpen} setAlert={setAlert} />

@@ -50,66 +50,66 @@ export default function AddUsage({ setOpen, setAlert}) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(formRef.current);
-    const selectedProductId = formData.get('productId');
-    const selectedProduct = products.find((product) => product._id === selectedProductId);
-    const selectedBranchId = formData.get('branch');
-    const selectedBranch = stores.find((branch) => branch._id === selectedProduct);
-    const quantity = parseFloat(formData.get('quantity'));
+    const selectedStoreId = selectStore;
+    const selectedProductId = selectPoductId;
+    let dataRequest
+    if (selectedStoreId && selectedProductId) {
+      const selectedBranch = stores.find((branch) => branch._id === selectedStoreId);
 
-    const data = {
-      userId: user.email,
-      productName: selectedProduct?.name || '',
-      productId: parseInt(selectedProductId),
-      storeName: selectedBranch?.name || '',
-      storeId: selectedBranchId,
-      quantity,
-    };
+      const selectedProduct = productsByStorage.find((product) => product._id === selectedProductId);
 
-    try {
-      await updateInventoryByProductId(selectedProductId, data).then(() => {
-        setAlert({
-          active: true,
-          message: 'Consumo añadido exitosamente',
-          type: 'success',
-          autoClose: true,
-        });
-        setOpen(true);
-        router.push('/products/usage');
-      });
-    } catch (error) {
-      setAlert({
-        active: true,
-        message: error.message,
-        type: 'error',
-        autoClose: true,
-      });
+      if (selectedBranch && selectedProduct) {
+        const quantity = parseFloat(formData.get('quantity'));
+        dataRequest = {
+          userId: user.email,
+          productName: selectedProduct.name,
+          productId: selectedProduct._id,
+          storeName: selectedBranch.storeName,
+          storeId: selectedStoreId,
+          quantity,
+        };
+        try {
+          await addUsage(dataRequest).then(() => {
+            setAlert({
+              active: true,
+              message: 'Consumo añadido exitosamente',
+              type: 'success',
+              autoClose: true,
+            });
+            setOpen(true);
+            router.push('/products/usage');
+          });
+        } catch (error) {
+          setAlert({
+            active: true,
+            message: error.message,
+            type: 'error',
+            autoClose: true,
+          });
+        }
+      } else {
+        console.log('Tienda o producto no encontrados');
+      }
+    } else {
+      console.log('Selecciona una tienda y un producto');
     }
+
     formRef.current.reset();
   };
 
   const  getProductsByStores = async ()=> {
     try {
-      const response = await axios.get(endPoints.inventory.getALlInventories());
-      const inventoryByStore= response.data.filter((item)=> item.storeId === selectStore)
-      const isNotEmptyInventoryByStore =  inventoryByStore.length > 0 ? setProductDisabled(false) :  setProductDisabled(true)
-      console.log({inventoryByStore})
-      inventoryByStore.length === 1 && setQuantityAvalible(inventoryByStore[0].quantityTotal)
-      console.log({inventoryByStore})
-      setProductsByStorage(inventoryByStore);
+      const response = await axios.get(endPoints.products.getProducts);
+      const productsByStore= response.data.filter((item)=> item.storeId === selectStore)
+      console.log({productsByStore})
+      const isNotEmptyInventoryByStore =  productsByStore.length > 0 ? setProductDisabled(false) :  setProductDisabled(true)
+      productsByStore.length === 1 && setQuantityAvalible(productsByStore[0].quantityTotal)
+      setProductsByStorage(productsByStore);
     } catch (error) {
       console.log(error);
     }
   }
 
-  const updateQuantity = (selectedProdId, inventoryUpdate) => {
-    if(selectedProdId){
-      let amount = productsByStorage.filter((item)=> item.productId === selectedProdId )
-      setQuantityAvalible(amount ? amount[0].quantityTotal : null)
-    }else{
-      console.log({inventoryUpdate})
-      setQuantityAvalible(inventoryUpdate ? inventoryUpdate[0].quantityTotal : null)
-    }
-  }
   return (
     <form ref={formRef} onSubmit={handleSubmit}>
       <div className="overflow-hidden">
@@ -125,7 +125,6 @@ export default function AddUsage({ setOpen, setAlert}) {
                 autoComplete="branch-name"
                 onChange={(event) => {
                   const selectedStoreId = event.target.value;
-                  console.log(event.target.name)
                   setSelectStore(selectedStoreId);
                 }}
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -154,17 +153,17 @@ export default function AddUsage({ setOpen, setAlert}) {
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 onChange={(event) => {
                   const selectedProdId = event.target.value;
+                  console.log({selectedProdId})
                   setSelectPoductId(selectedProdId);
-                  updateQuantity(selectedProdId)
                 }}
               >
                 {
                   productsByStorage?.map((product) => (
                     <option
-                      key= {product.productId}
-                      value={product.productId}
+                      key= {product._id}
+                      value={product._id}
                     >
-                      {product.productName}
+                      {product.name}
                     </option>
                   ))
                 }
@@ -182,7 +181,7 @@ export default function AddUsage({ setOpen, setAlert}) {
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               />
             </div>
-            <div className="col-span-6 sm:col-span-3">
+            {/*<div className="col-span-6 sm:col-span-3">
               <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
                 Cantidad Disponible
               </label>
@@ -197,7 +196,7 @@ export default function AddUsage({ setOpen, setAlert}) {
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               />
             </div>
-            </div>
+            </div>*/}
 
           </div>
         </div>

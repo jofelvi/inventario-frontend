@@ -12,6 +12,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAuth } from '@hooks/useAuth';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar } from 'antd';
+import ExportCSV from "@components/ExcelExport/exportCSV.js/exportCSV.";
 
 const MaterialsContent = () => {
   const [open, setOpen] = useState(false);
@@ -32,7 +33,9 @@ const MaterialsContent = () => {
       title: 'Nombre',
       dataIndex: 'name',
       key: 'name',
-      render: (text) => <a>{text}</a>,
+      render: (_, record) => <Link href={`/products/materials/${record._id}`}>
+        {record.name}  {record.unit}
+      </Link>,
     },
     {
       title: 'Precio',
@@ -57,8 +60,14 @@ const MaterialsContent = () => {
       ),
     },
   ];
+
+  const headersExcel = [
+    { label: "name", key: "name" },
+    { label: "price", key: "price" },
+    { label: "unit", key: "unit" },
+  ];
+
   useEffect(() => {
-    console.log("entro a materiales")
     async function getMaterials() {
       const response = await axios.get(endPoints.material.getMaterials);
       setMaterials(response.data.reverse());
@@ -109,6 +118,9 @@ const MaterialsContent = () => {
             {open ? <Subtitle onClick={() => setOpen(false)}>Atras</Subtitle> : <Subtitle onClick={() => setOpen(true)}>Añadir Material</Subtitle>}
           </FlexC>
           <Content>
+            <div style={{display:"flex", justifyContent: "flex-end", marginBottom: 10}}>
+              {materials && <ExportCSV headers={headersExcel} data={materials} nameFile={'Materiales '} />}
+            </div>
             <Alert alert={alert} handleClose={toggleAlert} />
              {open ? (
               <AddMaterial setOpen={setOpen} setAlertProps={setAlert} />

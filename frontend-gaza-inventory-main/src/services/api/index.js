@@ -55,7 +55,7 @@ const endPoints = {
     },
     mainInventory: {
         getMainInventory: (id) => `${API}/mainInventory/${id}`,
-        getMainInventorys: `${API}/mainInventory`,
+        getInventorys: `${API2}/mainInventory`,
         addMainInventory: `${API}/mainInventory`,
         updateMainInventory: (id) => `${API}/mainInventory/${id}`,
         deleteMainInventory: (id) => `${API}/mainInventory/${id}`,

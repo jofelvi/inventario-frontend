@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
 
-export default function AddMaterial({ setOpen, setAlertProps, material }) {
+export default function AddMaterial({ setOpen, setAlertProps, material,isReadOnly }) {
   const formRef = useRef(null);
   const router = useRouter();
   const { alert, setAlert, toggleAlert } = useAlert();
@@ -73,6 +73,7 @@ export default function AddMaterial({ setOpen, setAlertProps, material }) {
                 name="name"
                 id="name"
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                disabled={isReadOnly || false}
               />
             </div>
             <div className="col-span-6 sm:col-span-3">
@@ -86,6 +87,7 @@ export default function AddMaterial({ setOpen, setAlertProps, material }) {
                 name="price"
                 id="price"
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                disabled={isReadOnly || false}
               />
             </div>
             <div className="col-span-6 sm:col-span-3">
@@ -98,17 +100,20 @@ export default function AddMaterial({ setOpen, setAlertProps, material }) {
                 name="unit"
                 id="unit"
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                disabled={isReadOnly || false}
               />
             </div>
           </div>
         </div>
         <div className="px-4 py-3 text-right sm:px-6">
-          <button
-            type="submit"
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Guardar
-          </button>
+          {!isReadOnly && (
+            <button
+              type="submit"
+              className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Guardar
+            </button>
+          )}
         </div>
       </div>
     </form>

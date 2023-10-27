@@ -7,12 +7,24 @@ import { Main, Content, BackgroundContainer, Table, Title, Subtitle, FlexC, Spac
 import useAlert from '@hooks/useAlert';
 import Alert from '@common/Alert';
 import AddOrder from '@components/views/orders/addOrder/index';
+import ExportCSV from "@components/ExcelExport/exportCSV.js/exportCSV.";
+import {useAuth} from "@hooks/useAuth";
+import {FlexR, UserContainer, UserLabel} from "@components/views/materials/styles";
+import {Avatar} from "antd";
+import {UserOutlined} from "@ant-design/icons";
 
 const OrdersContent = () => {
   const [open, setOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const { alert, setAlert, toggleAlert } = useAlert();
   const [totalItems, setTotalItems] = useState(0);
+  const auth = useAuth();
+
+  const userData = {
+    name: auth?.user?.name,
+    email: auth?.user?.email,
+    role: auth?.user?.role,
+  };
 
   const columns = [
     {
@@ -53,6 +65,12 @@ const OrdersContent = () => {
       ),
     },
   ];
+  const headersExcel = [
+    { label: "createAt", key: "createAt" },
+    { label: "bill", key: "bill" },
+    { label: "providerName", key: "providerName" },
+    { label: "total_price", key: "total_price" },
+  ];
 
   useEffect(() => {
     async function getProducts() {
@@ -74,10 +92,19 @@ const OrdersContent = () => {
         <Sidebar />
         <BackgroundContainer>
           <FlexC>
-            <Title>Ordenes de Compra</Title>
+            <FlexR>
+              <Title>Ordenes de Compra</Title>
+              <UserContainer>
+                <Avatar size="small" icon={<UserOutlined />} />
+                <UserLabel>{userData.name}</UserLabel>
+              </UserContainer>
+            </FlexR>
             {open ? <Subtitle onClick={() => setOpen(false)}>Atras</Subtitle> : <Subtitle onClick={() => setOpen(true)}>Añadir Orden</Subtitle>}
           </FlexC>
           <Content>
+            <div style={{display:"flex", justifyContent: "flex-end", marginBottom: 10}}>
+              {orders && <ExportCSV headers={headersExcel} data={orders} nameFile={'Ordenes '} />}
+            </div>
             <Alert alert={alert} handleClose={toggleAlert} />
             {open ? <AddOrder setOpen={setOpen} setAlert={setAlert} /> 
             :

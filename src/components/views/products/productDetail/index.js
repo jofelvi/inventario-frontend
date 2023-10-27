@@ -16,9 +16,6 @@ const ProductsContent = () => {
   const { alert, setAlert, toggleAlert } = useAlert();
   const [totalItems, setTotalItems] = useState(0);
 
-  /*const products = useFetch(endPoints.product.getproducts);
-  console.log(products);*/
-
   const columns = [
     {
       title: 'Nombre',
