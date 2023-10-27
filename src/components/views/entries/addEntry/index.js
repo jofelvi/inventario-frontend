@@ -16,7 +16,9 @@ export default function AddEntry({ setOpen, setAlert}) {
   const [materialsByStore, setMaterialsByStore] = useState()
 
   const user = {
-    id: auth?.user?.id,
+    id: auth?.user?._id,
+    name: auth?.user?.name,
+    email: auth?.user?.email,
   };
 
   useEffect(() => {
@@ -65,6 +67,8 @@ export default function AddEntry({ setOpen, setAlert}) {
         destinationStoreName: stores.find((store) => store._id === storeTo)?.storeName || '',
         sourceStoreId: storeFrom,
         sourceStoreName: stores.find((store) => store._id === storeFrom)?.storeName || '',
+        userId: user.email,
+        userName: user.name
       };
     console.log({data})
          addEntry(data)

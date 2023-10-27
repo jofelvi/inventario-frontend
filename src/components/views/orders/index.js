@@ -48,6 +48,11 @@ const OrdersContent = () => {
       dataIndex: 'providerName',
       key: 'providerName',
     },
+   {
+      title: 'Usuario',
+      dataIndex: 'userId',
+      key: 'userId',
+    },
     {
       title: 'Precio Total',
       dataIndex: 'total_price',

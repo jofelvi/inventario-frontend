@@ -48,20 +48,26 @@ const UsageContent = () => {
       render: (date) => <span>{new Date(date).toLocaleDateString()}</span>,
     },
     {
-      title: 'productName',
+      title: 'Producto',
       dataIndex: 'productName',
       key: 'productName'
     },
     {
-      title: 'storeName',
+      title: 'Sucursal',
       dataIndex: 'storeName',
       key: 'storeName',
     },
     {
-      title: 'quantity',
+      title: 'Cantidad',
       dataIndex: 'quantity',
       key: 'quantity',
     },
+     {
+      title: 'Usuario',
+      dataIndex: 'userId',
+      key: 'userId',
+    },
+
   ];
   const headersExcel = [
     { label: "date", key: "date" },

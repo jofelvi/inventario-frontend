@@ -27,7 +27,7 @@ const EntryContent = () => {
   useEffect(() => {
     async function getEntries() {
       const response = await axios.get(endPoints.entries.getEntries);
-      setEntries(response.data);
+      setEntries(response.data.reverse());
     }
     try {
       getEntries();
@@ -81,6 +81,9 @@ const EntryContent = () => {
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Cantidad
                     </th>
+                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Usuario
+                    </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Sucursal Destino
                     </th>
@@ -105,6 +108,9 @@ const EntryContent = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">{entry.quantity}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{entry.userId}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">{entry.destinationStoreName}</span>

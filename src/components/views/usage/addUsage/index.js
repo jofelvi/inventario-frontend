@@ -21,6 +21,7 @@ export default function AddUsage({ setOpen, setAlert}) {
   const user = {
     id: auth?.user?._id,
     email: auth?.user?.email,
+    name: auth?.user?.name,
   };
 
   useEffect(() => {
@@ -53,15 +54,14 @@ export default function AddUsage({ setOpen, setAlert}) {
     const selectedStoreId = selectStore;
     const selectedProductId = selectPoductId;
     let dataRequest
-    if (selectedStoreId && selectedProductId) {
       const selectedBranch = stores.find((branch) => branch._id === selectedStoreId);
 
       const selectedProduct = productsByStorage.find((product) => product._id === selectedProductId);
 
-      if (selectedBranch && selectedProduct) {
         const quantity = parseFloat(formData.get('quantity'));
         dataRequest = {
           userId: user.email,
+          userName: user.name,
           productName: selectedProduct.name,
           productId: selectedProduct._id,
           storeName: selectedBranch.storeName,
@@ -87,12 +87,7 @@ export default function AddUsage({ setOpen, setAlert}) {
             autoClose: true,
           });
         }
-      } else {
-        console.log('Tienda o producto no encontrados');
-      }
-    } else {
-      console.log('Selecciona una tienda y un producto');
-    }
+
 
     formRef.current.reset();
   };
@@ -152,6 +147,11 @@ export default function AddUsage({ setOpen, setAlert}) {
                 disabled={productDisabled}
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 onChange={(event) => {
+                  const selectedProdId = event.target.value;
+                  console.log({selectedProdId})
+                  setSelectPoductId(selectedProdId);
+                }}
+                onBlur={(event)=>{
                   const selectedProdId = event.target.value;
                   console.log({selectedProdId})
                   setSelectPoductId(selectedProdId);

@@ -72,7 +72,6 @@ const MaterialsContent = () => {
       const response = await axios.get(endPoints.material.getMaterials);
       setMaterials(response.data.reverse());
       setTotalItems(response.data.length);
-      console.log(response.data);
     }
     try {
       getMaterials();

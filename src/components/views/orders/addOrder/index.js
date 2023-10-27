@@ -15,6 +15,7 @@ export default function AddOrder({ setOpen, setAlert}) {
   const user = {
     id: auth?.user?._id,
     email: auth?.user?.email,
+    name: auth?.user?.name
   };
 
   const handleSubmit = (event) => {
@@ -22,14 +23,15 @@ export default function AddOrder({ setOpen, setAlert}) {
     const formData = new FormData(formRef.current);
     const selectedBranchId = formData.get('branch');
     const selectedBranch = stores.find((branch) => branch._id === store);
+    const selectedBranchDefault = stores.find((branch) => branch._id === selectedBranchId);
 
-    console.log("user.id", user.id)
       const data = {
-        userId: user.id,
+        userId: user.email,
+        userName: user.name,
         bill: formData.get('bill'),
         providerName: formData.get('provider'),
         total_price: parseFloat(formData.get('total_price').toString()),
-        storeName: selectedBranch?.storeName || '',
+        storeName: selectedBranch?.storeName || selectedBranchDefault.storeName,
         storeId: store || selectedBranchId,
       };
 
@@ -37,7 +39,6 @@ export default function AddOrder({ setOpen, setAlert}) {
 
         addOrder(data)
           .then((response) => {
-            console.log('response', response);
             setAlert({
               active: true,
               message: 'Orden añadida exitosamente',
@@ -46,6 +47,7 @@ export default function AddOrder({ setOpen, setAlert}) {
             });
             setOpen(true);
             router.push('/orders');
+            formRef.current.reset();
           })
           .catch((error) => {
             setAlert({
@@ -54,8 +56,7 @@ export default function AddOrder({ setOpen, setAlert}) {
               type: 'error',
               autoClose: true,
             });
-          }); 
-    formRef.current.reset();
+          });
   };
   useEffect(() => {
     getStores()
@@ -118,9 +119,10 @@ export default function AddOrder({ setOpen, setAlert}) {
                 name="branch"
                 autoComplete="branch-name"
                 className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                value={store}
+                value={store }
                 onChange={(event) => {
                   const selectId = event.target.value;
+                  console.log({selectId})
                   setStore(selectId)
                 }}
               >

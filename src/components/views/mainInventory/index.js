@@ -39,7 +39,7 @@ const MainInventoryContent = () => {
   const getInventory= async ()=>  {
     const response = await axios.get(endPoints.inventory.getALlInventories());
     console.log(response.data);
-    setInventory(response.data);
+    setInventory(response.data.reverse());
   }
 
   const handleStoreChange = (value) => {
@@ -52,7 +52,7 @@ const MainInventoryContent = () => {
   };
 
   const uniqueStores = [...new Set(inventory.map(item => item.storeId))];
-
+  console.log({uniqueStores})
   const headersExcel = [
     { label: "storeName", key: "storeName" },
     { label: "materialName", key: "materialName" },
