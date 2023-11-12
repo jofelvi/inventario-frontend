@@ -4,8 +4,7 @@ const API2 =  "http://localhost:5000/api"
 const endPoints = {
     auth: {
         login: `${API2}/auth/login`,
-        signUp: `${API}/auth/signUp`,
-        signUp2: `${API2}/usuarios`,
+        signUp: `${API2}/auth/register`,
         me: `${API2}/auth/me`,
         profile: `${API}/profile`
     },

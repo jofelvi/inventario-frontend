@@ -18,10 +18,11 @@ const CreateUserForm = () => {
     const [passwordMatch, setPasswordMatch] = useState(true); 
     const passwordReplyRef = useRef(); 
     let isButtonDisabled
+    const [disableBtnSave, setDisableBtnSave] = useState(false)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setDisableBtnSave(true)
         const newUser = {
             name: nameRef.current.value,
             email: emailRef.current.value,
@@ -42,17 +43,21 @@ const CreateUserForm = () => {
         }
 
         try {
-            let signUpResp = await auth.createUser(newUser);
-            console.log("------------------");
-            console.log(signUpResp);
-            setSuccessSmg(signUpResp.message)
-            console.log(JSON.stringify(signUpResp));
-            await router.push('/inventory/mainInventory')
-            setSuccess(true)
+            const data = await auth.createUser(newUser);
+            setSuccess(true);
+            console.log(data)
+            if (data.status !== 201) {
+                setError(error.data.message || 'Error al crear el usuario');
+            }
+            setSuccessSmg(data.data.message);
             setError(null)
+            setTimeout(async () => { await router.push('/inventory/mainInventory') }, 2000);
+
+
         } catch (error) {
-            console.log({error})
-            setError(error.message || 'Ha ocurrido un error al crear el usuario.');
+            setError(error?.response?.data?.message ||  error.message ||'Error al crear el usuario.');
+        } finally {
+            setDisableBtnSave(false)
         }
     };
 
@@ -155,7 +160,6 @@ const CreateUserForm = () => {
                         <div>
                             <button
                                 type="submit"
-                                disabled={isButtonDisabled}
                                 className="group relative flex w-full justify-center rounded-md border border-transparent bg-sky-600 py-2 px-4 text-sm font-medium text-white hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
                             >
                                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">

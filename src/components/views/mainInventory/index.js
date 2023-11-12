@@ -15,8 +15,10 @@ const { Option } = Select;
 
 const MainInventoryContent = () => {
   const [inventory, setInventory] = useState([]);
+  const [inventoryAll, setInventoryAll] = useState([]);
   const [selectedStore, setSelectedStore] = useState('');
   const [showAllInventories, setShowAllInventories] = useState(true)
+  const [stores, setStores] = useState([])
 
   const auth = useAuth();
 
@@ -29,22 +31,37 @@ const MainInventoryContent = () => {
     console.log(auth.user)
     try {
       getInventory();
+      getStores()
 
     } catch (error) {
       console.log(error);
     }
   }, []);
 
+  const getStores = async ()=> {
+    try {
+      const response = await axios.get(endPoints.store.getStores);
+      console.log(response.data)
+      let storesActives = response.data.filter((item)=> item.status === "active")
+      storesActives = [{ _id: 'all', storeName: 'Todas', storeId: 'all' }, ...storesActives];
+      setStores(storesActives);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const getInventory= async ()=>  {
     const response = await axios.get(endPoints.inventory.getALlInventories());
-    console.log(response.data);
+    console.log("inventario", response.data);
+    setInventoryAll(response.data.reverse());
     setInventory(response.data.reverse());
   }
-
   const handleStoreChange = (value) => {
+    console.log(`selected ${value}`);
     setSelectedStore(value);
-    setShowAllInventories(false)
+    if (value === 'all')  return setInventory(inventoryAll);
+    const filteredInventory = inventoryAll.filter(item => item.storeId === value);
+    setInventory(filteredInventory);
   };
 
   const toggleFilters = () => {
@@ -66,7 +83,7 @@ const MainInventoryContent = () => {
         <BackgroundContainer>
           <FlexC>
           <FlexR>
-            <Title>Almacen</Title>
+            <Title>Almacen< /Title>
             <UserContainer>
             <Avatar size="small" icon={<UserOutlined />} />
             <UserLabel>{userData.name}</UserLabel>
@@ -79,29 +96,16 @@ const MainInventoryContent = () => {
               <ExportCSV headers={headersExcel} data={inventory} nameFile={'Inventario '} />
             </div>
             <div style={{display: "flex", justifyContent: "right", marginBottom: 15}}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={showAllInventories}
-                  onChange={toggleFilters}
-                  style={{marginRight:15}}
-                />
-                Ver Todos
-              </label>
-            </div>
-            <div style={{display: "flex", justifyContent: "right", marginBottom: 15}}>
 
               <Select
                 style={{ width: 200 }}
                 placeholder="Seleccionar tienda"
                 onChange={handleStoreChange}
                 value={selectedStore}
-                labelInValue=''
               >
-                {uniqueStores.map(storeId => {
-                  const store = inventory.find(item => item.storeId === storeId);
+                {stores.map(store => {
                   return (
-                    <Option key={store.storeId} value={store.storeId}>
+                    <Option key={store._id} value={store._id}>
                       {store.storeName}
                     </Option>
                   );
@@ -143,7 +147,6 @@ const MainInventoryContent = () => {
                     </tr>
                   )) : (
                      inventory
-                       .filter((item) => !selectedStore || item.storeId === selectedStore)
                        .map((item) => (
                          <tr key={`Inventory-item-${item.id}`}>
                            <td className="px-6 py-4 whitespace-nowrap">

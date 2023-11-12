@@ -47,6 +47,7 @@ export default function AddProduct({ setOpen, setAlert, product }) {
       formRef.current.reset();
     }
   };
+
   useEffect(() => {
     getStores()
   }, []);
@@ -54,6 +55,7 @@ export default function AddProduct({ setOpen, setAlert, product }) {
   const getStores = async ()=> {
     try {
       const response = await axios.get(endPoints.store.getStores);
+      console.log(response.data)
       const storesActives = response.data.filter((item)=> item.status === "active")
       setStores(storesActives);
     } catch (error) {
