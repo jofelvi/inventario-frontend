@@ -67,7 +67,7 @@ const DashboardContent = () => {
     setOrderCount(response?.data?.length || 0)
   }
 
-  const labels = ['Octubre', 'Noviembre', 'Diciembre'];
+  const labels = [ 'Noviembre', 'Diciembre', 'Enero'];
 
   const dataChartBar = {
     labels,
@@ -141,9 +141,7 @@ const DashboardContent = () => {
             <List>{usersCount && <ChartVerticalUsers data={dataChartBar} title="Top Users" />}</List>
             <List>{orderCount && <ChartVerticalUsers data={dataChartBarOrder} title="Top Users" />}</List>
           </ListContainer>
-{/*
-          <ActivityContainer><DynamicTableXl headers={headers} data={data} /> </ActivityContainer>
-*/}
+
         </Content>
       </BackgroundContainer>
     </Main>

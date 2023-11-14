@@ -50,12 +50,22 @@ const MainInventoryContent = () => {
     }
   }
 
-  const getInventory= async ()=>  {
+  const getInventory = async () => {
     const response = await axios.get(endPoints.inventory.getALlInventories());
     console.log("inventario", response.data);
-    setInventoryAll(response.data.reverse());
-    setInventory(response.data.reverse());
-  }
+
+/*
+    const sortedData = response.data.sort((a, b) => {
+      const dateA = new Date(a.createAt);
+      const dateB = new Date(b.createAt);
+      debugger
+      return dateB - dateA;
+    });
+*/
+
+    setInventoryAll(response.data);
+    setInventory(response.data);
+  };
   const handleStoreChange = (value) => {
     console.log(`selected ${value}`);
     setSelectedStore(value);
@@ -129,7 +139,7 @@ const MainInventoryContent = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                 { showAllInventories ? inventory.map((item) => (
+                 { inventory.map((item) => (
                     <tr key={`Inventory-item-${item.id}`}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -145,26 +155,8 @@ const MainInventoryContent = () => {
                         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">{item.storeName}</span>
                       </td>
                     </tr>
-                  )) : (
-                     inventory
-                       .map((item) => (
-                         <tr key={`Inventory-item-${item.id}`}>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="flex items-center">
-                               <div className="ml-4">
-                                 <div className="text-sm font-medium text-gray-900">{item.materialName}</div>
-                               </div>
-                             </div>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="text-sm text-gray-900">{item.quantityTotal}</div>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ">{item.storeName}</span>
-                           </td>
-                         </tr>
-                       ))
-                 )}
+                  ))
+                 }
                 </tbody>
               </table>
           </Content>

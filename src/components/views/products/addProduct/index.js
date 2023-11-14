@@ -18,7 +18,7 @@ export default function AddProduct({ setOpen, setAlert, product }) {
       name: formData.get('name'),
       price: parseFloat(formData.get('price')),
       unit: formData.get('unit'),
-      storeName: selectedBranch?.storeName || '',
+      storeName: selectedBranch?.storeName || stores[0]?.storeName,
       storeId: store || selectedBranchId,
     };
     if (product) {
@@ -105,18 +105,6 @@ export default function AddProduct({ setOpen, setAlert, product }) {
                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
               />
             </div>
-          {/*  <div className="col-span-6 sm:col-span-3">
-              <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
-                Cantidad Inicial
-              </label>
-              <input
-                defaultValue={product?.quantity}
-                type="text"
-                name="quantity"
-                id="unit"
-                className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-              />
-            </div>*/}
             <div className="col-span-6 sm:col-span-3">
               <label htmlFor="branch" className="block text-sm font-medium text-gray-700">
                 Sucursal que pertenecen los materiales
